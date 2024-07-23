@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout.html}">
-
-
 <head>
     <meta charset="UTF-8">
     <title>Danh sách sản phẩm</title>
@@ -66,7 +64,6 @@
     </form>
 
     <a href="/admin/product-create" class="btn btn-success my-3 float-right"><i class="fa fa-plus-square"></i> <span>Thêm sản phẩm</span></a>
-<!--    <div class=" alert alert-success" style="margin-top: 80px" th:if="${successMessage != ''}" th:text="${successMessage}"></div>-->
     <table class="table my-3">
         <thead class="thead-light">
         <tr>
@@ -109,6 +106,8 @@
 
             <td>
                 <a th:href="@{'/admin/product-edit/' + ${item.maSanPham}}"><i class="fa ti-pencil-alt"></i></a>
+                <a>   </a>
+                <a th:href="@{'/admin/chi-tiet-san-pham/'+ ${item.maSanPham}}" ><i class="fas fa-list"></i></a>
 <!--                <a class="cursor-pointer" th:data-product-id="${item.idSanPham}" id="delete-btn"><i class="fa fa-trash-o"></i></a>-->
             </td>
         </tr>

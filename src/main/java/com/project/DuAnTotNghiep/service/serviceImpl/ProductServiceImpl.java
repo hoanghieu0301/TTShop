@@ -231,5 +231,4 @@ public class ProductServiceImpl implements ProductService {
         productDto.setProductDetailDtos(productDetailDtoList);
         return productDto;
     }
-
 }

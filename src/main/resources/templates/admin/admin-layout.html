@@ -39,9 +39,9 @@
                 <li class="active">
                     <a th:href="@{/admin}"> <i class="menu-icon fas fa-home"></i>Trang chủ </a>
                 </li>
-<!--                <li class="active">-->
-<!--                    <a th:href="@{/admin/pos}"> <i class="menu-icon fa fa-shopping-bag"></i>Bán hàng tại quầy </a>-->
-<!--                </li>-->
+                <li class="active">
+                    <a th:href="@{/admin/pos}"> <i class="menu-icon fa fa-shopping-bag"></i>Bán hàng tại quầy </a>
+                </li>
                 <h3 class="menu-title">QUẢN LÝ</h3><!-- /.menu-title -->
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
@@ -60,7 +60,7 @@
                        aria-expanded="false"> <i class="menu-icon fa fa-table"></i>Quản lý hóa đơn</a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="fas fa-file-invoice"></i><a th:href="@{/admin/bill-list}">Hóa đơn</a></li>
-<!--                        <li sec:authorize="hasRole('ADMIN')"><i class="fas fa-exchange-alt"></i><a th:href="@{/admin-only/bill-return}">Đổi trả</a></li>-->
+                        <li sec:authorize="hasRole('ADMIN')"><i class="fas fa-exchange-alt"></i><a th:href="@{/admin-only/bill-return}">Đổi trả</a></li>
 
                     </ul>
                 </li>
@@ -91,24 +91,24 @@
                     </ul>
                 </li>
 
-<!--                <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">-->
-<!--                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"-->
-<!--                       aria-expanded="false"> <i class="menu-icon fas fa-user"></i>Quản lý tài khoản</a>-->
-<!--                    <ul class="sub-menu children dropdown-menu">-->
-<!--                        <li><i class="fas fa-chart-line"></i><a th:href="@{/admin-only/account-management}">Tài khoản</a></li>-->
-<!--                    </ul>-->
-<!--                </li>-->
+                <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false"> <i class="menu-icon fas fa-user"></i>Quản lý tài khoản</a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="fas fa-chart-line"></i><a th:href="@{/admin-only/account-management}">Tài khoản</a></li>
+                    </ul>
+                </li>
 
-<!--                <h3 class="menu-title">Công cụ khác</h3>&lt;!&ndash; /.menu-title &ndash;&gt;-->
-<!--                <li class="menu-item-has-children dropdown">-->
-<!--                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"-->
-<!--                       aria-expanded="false"> <i class="menu-icon fa fa-glass"></i>Khác</a>-->
-<!--                    <ul class="sub-menu children dropdown-menu">-->
-<!--                        <li><i class="menu-icon fa fa-sign-in"></i><a th:href="@{/user_logout}">Đăng xuất</a></li>-->
-<!--                        <li><i class="menu-icon fa fa-paper-plane"></i><a th:href="@{/profile}">Cập nhật thông tin</a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                </li>-->
+                <h3 class="menu-title">Công cụ khác</h3><!-- /.menu-title -->
+                <li class="menu-item-has-children dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false"> <i class="menu-icon fa fa-glass"></i>Khác</a>
+                    <ul class="sub-menu children dropdown-menu">
+                        <li><i class="menu-icon fa fa-sign-in"></i><a th:href="@{/user_logout}">Đăng xuất</a></li>
+                        <li><i class="menu-icon fa fa-paper-plane"></i><a th:href="@{/profile}">Cập nhật thông tin</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div><!-- /.navbar-collapse -->
     </nav>

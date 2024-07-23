@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout.html}">
-
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-
 </head>
 <body>
 <div layout:fragment="content">
@@ -23,7 +21,6 @@
                     <span class="error"></span>
                     <!-- Add more fields as needed -->
                 </div>
-
                 <div class="form-group">
                     <label for="sizeName">Tên màu:</label>
                     <span class="red_require"> *</span>
@@ -36,8 +33,6 @@
 
         </div>
     </div>
-
-
     <div class="custom-modal" id="add-size-modal">
         <div class="modal-content rounded">
             <span class="close" >&times;</span>
@@ -52,7 +47,6 @@
                     <span class="error"></span>
                     <!-- Add more fields as needed -->
                 </div>
-
                 <div class="form-group">
                     <label for="colorName">Tên cỡ:</label>
                     <span class="red_require"> *</span>
@@ -65,8 +59,6 @@
 
         </div>
     </div>
-
-
     <h4>Thông tin sản phẩm chi tiết</h4>
     <form th:object="${form}" th:method="post" th:action="@{/admin/product-save}" enctype="multipart/form-data" id="myForm">
         <div class="my-3 attr-list" >
@@ -107,10 +99,6 @@
                         <input type="text" class="form-control product-price" th:field="*{productDetailList[__${iterStat.index}__].price}" required>
                     </div>
                 </div>
-
-<!--                <div class="form-row">-->
-<!--                   -->
-<!--                </div>-->
             </div>
         </div>
         <div class="form-row ml-2">
@@ -146,25 +134,6 @@
 
         $(document).ready(function () {
             var parentPlus;
-
-            // $('#save-btn').on('click', function () {
-            //     $('#myForm').submit()
-            //     Swal.fire({
-            //         title: 'Thêm sản phẩm thành công',
-            //         text: 'Bạn có muốn tiếp tục thêm không',
-            //         icon: 'success',
-            //         showCancelButton: true,
-            //         confirmButtonText: 'Tiếp tục thiết lập',
-            //         cancelButtonText: 'Quay lại trang danh sách'
-            //     }).then((result) => {
-            //         if (result.isConfirmed) {
-            //             // Chuyển trang khi người dùng nhấn "OK"
-            //             window.location.href = '/admin/product-create'
-            //         } else {
-            //             window.location.href = '/admin/product-all'
-            //         }
-            //     });
-            // })
 
             $('.add-color').on('click', function () {
                 $('#add-color-modal').show()
@@ -214,7 +183,6 @@
                     })
                 }
             });
-
             //VALIDATE CATEGORY
             Validator({
                 form: '#size-form',
@@ -294,13 +262,6 @@
             $('.product-price').on('keydown', function (e) {
                 onlyAllowNumberInput2(e)
             })
-
-            // $('.product-price').on('focusout', function (e) {
-            //     if($(this).val() == "") {
-            //         $(this).val(0)
-            //     }
-            // })
-
             //Handle add product detail
             document.querySelector('.product-price').value = 0
             var listDetail = []
@@ -317,7 +278,6 @@
                     listDetail[0].size = $(".size-select").val()
                 }
             })
-
            $(".size-select").first().on('change', function (e) {
                 sizeFirst = $(this).val()
                 if(sizeFirst != '' && $(".color-select").val() != '') {
@@ -326,15 +286,10 @@
                 }
 
             })
-
             function generateRandomBarcode() {
                 return Math.floor(100000000000 + Math.random() * 900000000000).toString();
             }
-
-            // Autofill barcode when the page loads
             $('.barcode-select').val(generateRandomBarcode());
-
-
 
             $('#add-attr-btn').on('click', addItem)
             function addItem() {
@@ -353,7 +308,6 @@
                         input.value = ''; // Clear input values if needed
                     }
                 });
-
                 template.querySelector('.product-price').value = 10000
                 template.querySelector('.product-quantity').value = 1
 
@@ -368,11 +322,6 @@
                 $('.product-price').on('keydown', function (e) {
                     onlyAllowNumberInput2(e)
                 })
-                // $('.product-quantity').on('focusout', function (e) {
-                //     if($(this).val() == "") {
-                //         $(this).val(0)
-                //     }
-                // })
                 const deleteButtonContainer = document.createElement('div')
                 const deleteButton = document.createElement('button');
                 deleteButton.type = 'button';
@@ -431,7 +380,6 @@
                     return obj.color !== color || obj.size !== size;
                 });
             }
-
             function checkDuplicateSizeAndColor(color, size, template) {
                 listDetail.forEach(item => {
                     if(item.color == color && item.size == size) {
@@ -448,8 +396,6 @@
                 })
                 return false
             }
-
-
             //Handle file input
             const fileInput = document.getElementById("file-input")
             fileInput.addEventListener('change', (e) => displaySelectedImages(e))
@@ -483,17 +429,13 @@
                                     // Create a new div for the image
                                     const imageDiv = document.createElement('div');
                                     imageDiv.className = 'selected-file me-2';
-
                                     // Create an image element
                                     const image = document.createElement('img');
                                     image.src = e.target.result;
                                     image.alt = 'Selected Image';
                                     image.width = 100;
                                     image.height = 120;
-
                                     // Create a div for file details
-
-
                                     // Create a button to remove the image
                                     const removeButton = document.createElement('div');
                                     removeButton.innerHTML = `<div class="file-details">
@@ -543,7 +485,6 @@
                         return false; // To break out of the loop
                     }
                 });
-
                 $('.size-select').each(function(index, item) {
                     if ($(item).val() == null) {
                         swal("Lỗi", "Vui lòng chọn kích cỡ cho sản phẩm");
@@ -554,14 +495,12 @@
                 if(!canAdd) {
                     return false
                 }
-
                 var formData = new FormData(this)
                 fileSend.forEach(file => formData.append("files", file))
                 await fetch("/admin/product-save", {
                     method: "POST",
                     body: formData,
                 })
-
                 Swal.fire({
                     title: 'Thêm sản phẩm thành công',
                     text: 'Bạn có muốn tiếp tục thêm không',
@@ -577,20 +516,9 @@
                         window.location.href = '/admin/product-all'
                     }
                 });
-
-                // window.location = "/admin/product-all";
             })
-
-
-
         })
-
-
-
-
     </script>
 </div>
-
-
 </body>
 </html>

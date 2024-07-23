@@ -1,6 +1,5 @@
 package com.project.DuAnTotNghiep.entity;
 
-import com.project.DuAnTotNghiep.entity.enumClass.ClothingType;
 import lombok.*;
 import org.hibernate.annotations.Nationalized;
 
@@ -53,8 +52,6 @@ public class Product implements Serializable {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> image;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductDetail> productDetails;
-
 }

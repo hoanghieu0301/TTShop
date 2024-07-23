@@ -117,7 +117,7 @@
                                    Số lượng tối đa
                                </label>
                                <span class="red_require"> *</span>
-                               <input type="text" class="form-input" th:field="*{maximumUsage}"  placeholder="VD: 123">
+                               <input type="number" class="form-input" th:field="*{maximumUsage}"  placeholder="VD: 123">
                                <span class="error"></span>
                            </div>
                         </div>
@@ -206,19 +206,31 @@
             // })
 
 
-            $("#percentage").on('input', function () {
-                if(parseInt($(this).val()) > 98) {
-                    $(this).val(98);
-                    Toastify({
-                        text: "Giảm giá tối đa 98%",
-                        className: "error",
-                        style: {
-                            color: "white",
-                            background: "red",
-                        }
-                    }).showToast();
-                }
-            })
+           $("#percentage").on('input', function () {
+            if(parseInt($(this).val()) > 99) {  // Updated to reflect 99 instead of 98
+                $(this).val(99);
+                Toastify({
+                    text: "Giảm giá tối đa 99%",
+                    className: "error",
+                    style: {
+                        color: "white",
+                        background: "red",
+                    }
+                }).showToast();
+            } else if (parseInt($(this).val()) < 1) {  // Updated to reflect 1 instead of 2
+                $(this).val(1);
+                Toastify({
+                    text: "Giảm giá tối thiểu 1%",
+                    className: "error",
+                    style: {
+                        color: "white",
+                        background: "red",
+                    }
+                }).showToast();
+            }
+        })
+
+
 
             $("#discountAmount").on('keypress', function (e) {
                 onlyAllowNumberInput(e)
