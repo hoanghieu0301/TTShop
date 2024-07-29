@@ -30,7 +30,7 @@
                     aria-controls="main-menu" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fa fa-bars"></i>
             </button>
-<!--            <a class="navbar-brand text-white" style="background-color: #272c33" href="./"><img th:src="@{/admin/images/color-1.png}" alt="Logo"></a>-->
+            <a class="navbar-brand text-white" style="background-color: #272c33" href="./"><img th:src="@{/admin/images/color-1.png}" alt="Logo"></a>
             <a class="navbar-brand hidden" href="./"><img th:src="@{/admin/images/logo-2.png}" alt="Logo"></a>
         </div>
 
@@ -61,7 +61,7 @@
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="fas fa-file-invoice"></i><a th:href="@{/admin/bill-list}">Hóa đơn</a></li>
                         <li sec:authorize="hasRole('ADMIN')"><i class="fas fa-exchange-alt"></i><a th:href="@{/admin-only/bill-return}">Đổi trả</a></li>
-
+                        <li><i class="fas fa-undo"></i><a th:href="@{/admin-only/need-refund-mng}">Hoàn tiền thanh toán Online</a></li>
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">
@@ -73,14 +73,6 @@
                     </ul>
                 </li>
 
-<!--                <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">-->
-<!--                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"-->
-<!--                       aria-expanded="false"> <i class="menu-icon fas fa-shopping-basket"></i>Giao dịch</a>-->
-<!--                    <ul class="sub-menu children dropdown-menu">-->
-<!--&lt;!&ndash;                        <li><i class="fas fa-cash-register"></i><a th:href="@{/admin/transaction}">Theo dõi thanh toán online</a></li>&ndash;&gt;-->
-<!--                        <li><i class="fas fa-undo"></i><a th:href="@{/admin-only/need-refund-mng}">Đơn hoàn tiền</a></li>-->
-<!--                    </ul>-->
-<!--                </li>-->
 
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
@@ -138,30 +130,7 @@
             </div>
         </div>
     </header>
-
-<!--    <div class="breadcrumbs">-->
-<!--        <div class="col-sm-4">-->
-<!--            <div class="page-header float-left">-->
-<!--                <div class="page-title">-->
-<!--                    <h1>ADMIN</h1>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="col-sm-8">-->
-<!--            <div class="page-header float-right">-->
-<!--                <div class="page-title">-->
-<!--                    <ol class="breadcrumb text-right">-->
-<!--                        <li class="active">Dashboard</li>-->
-<!--                    </ol>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
     <div class="content p-4">
-<!--        <th:insert data-th-insert="~{${layoutAdmin}}"></th:insert>-->
-<!--        <div th:replace="Color :: content">-->
-
-<!--        </div>-->
         <div layout:fragment="content">
 
         </div>

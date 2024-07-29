@@ -219,14 +219,14 @@
                 </svg>
             </a>
         </div>
-<!--        <div class="ml-4 mr-2 cursor-pointer hover:bg-black/[.54] rounded-lg" id="enable-camera-button">-->
-<!--                <span>-->
-<!--                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 256 256">-->
-<!--                        <path fill="white"-->
-<!--                              d="M232 48v40a8 8 0 0 1-16 0V56h-32a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8ZM72 200H40v-32a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16Zm152-40a8 8 0 0 0-8 8v32h-32a8 8 0 0 0 0 16h40a8 8 0 0 0 8-8v-40a8 8 0 0 0-8-8ZM32 96a8 8 0 0 0 8-8V56h32a8 8 0 0 0 0-16H32a8 8 0 0 0-8 8v40a8 8 0 0 0 8 8Zm48-16a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm104 88V88a8 8 0 0 0-16 0v80a8 8 0 0 0 16 0Zm-40-88a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm-32 0a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Z" />-->
-<!--                    </svg>-->
-<!--                </span>-->
-<!--        </div>-->
+        <div class="ml-4 mr-2 cursor-pointer hover:bg-black/[.54] rounded-lg" id="enable-camera-button">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 256 256">
+                        <path fill="white"
+                              d="M232 48v40a8 8 0 0 1-16 0V56h-32a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8ZM72 200H40v-32a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16Zm152-40a8 8 0 0 0-8 8v32h-32a8 8 0 0 0 0 16h40a8 8 0 0 0 8-8v-40a8 8 0 0 0-8-8ZM32 96a8 8 0 0 0 8-8V56h32a8 8 0 0 0 0-16H32a8 8 0 0 0-8 8v40a8 8 0 0 0 8 8Zm48-16a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm104 88V88a8 8 0 0 0-16 0v80a8 8 0 0 0 16 0Zm-40-88a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm-32 0a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Z" />
+                    </svg>
+                </span>
+        </div>
         <div class="tab-container" data-tab-number="1">
             <div class="tab-list">
                 <div data-tab-number="1" class="tab active font-bold relative cursor-pointer">
@@ -385,9 +385,9 @@
                         <span class="text-gray-400 text italic">Không thấy khách hàng nào</span>
                     </div>
                 </div>
-<!--                <div class="selected-customer active mt-2 border border-blue-400 rounded-md">-->
-<!--                    <span class="font-bold italic text-gray-500">&#45;&#45;Khách lẻ&#45;&#45;</span>-->
-<!--                </div>-->
+                <div class="selected-customer active mt-2 border border-blue-400 rounded-md">
+                    <span class="font-bold italic text-gray-500">--Khách lẻ--</span>
+                </div>
             </div>
             <div class=" mb-3">
                 <div class="col">
@@ -1188,7 +1188,7 @@
                         `)
 
                     $('#delete-selected-customer-btn').click(() => {
-<!--                        $('.selected-customer.active').html('<span class="font-bold italic text-gray-500">&#45;&#45;Khách lẻ&#45;&#45;</span>')-->
+                        $('.selected-customer.active').html('<span class="font-bold italic text-gray-500">--Khách lẻ--</span>')
                         $('.selected-customer.active').attr('selected-id', "")
                     })
                 }
