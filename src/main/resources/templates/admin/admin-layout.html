@@ -30,7 +30,7 @@
                     aria-controls="main-menu" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fa fa-bars"></i>
             </button>
-            <a class="navbar-brand text-white" style="background-color: #272c33" href="./"><img th:src="@{/admin/images/color-1.png}" alt="Logo"></a>
+            <a class="navbar-brand text-white" style="background-color: #272c33" href="./"><img th:src="@{/admin/images/logo-01.png}" alt="Logo"></a>
             <a class="navbar-brand hidden" href="./"><img th:src="@{/admin/images/logo-2.png}" alt="Logo"></a>
         </div>
 
@@ -42,7 +42,7 @@
                 <li class="active">
                     <a th:href="@{/admin/pos}"> <i class="menu-icon fa fa-shopping-bag"></i>Bán hàng tại quầy </a>
                 </li>
-                <h3 class="menu-title">QUẢN LÝ</h3><!-- /.menu-title -->
+                <h3 class="menu-title">DANH MỤC</h3><!-- /.menu-title -->
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                        aria-expanded="false"> <i class="menu-icon fa fa-laptop"></i>Quản lý sản phẩm</a>
@@ -90,17 +90,6 @@
                         <li><i class="fas fa-chart-line"></i><a th:href="@{/admin-only/account-management}">Tài khoản</a></li>
                     </ul>
                 </li>
-
-                <h3 class="menu-title">Công cụ khác</h3><!-- /.menu-title -->
-                <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false"> <i class="menu-icon fa fa-glass"></i>Khác</a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="menu-icon fa fa-sign-in"></i><a th:href="@{/user_logout}">Đăng xuất</a></li>
-                        <li><i class="menu-icon fa fa-paper-plane"></i><a th:href="@{/profile}">Cập nhật thông tin</a>
-                        </li>
-                    </ul>
-                </li>
             </ul>
         </div><!-- /.navbar-collapse -->
     </nav>
@@ -119,10 +108,11 @@
                 <span sec:authentication="principal.username"></span>
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                    aria-expanded="false">
-                    <img class="user-avatar rounded-circle" src="https://www.kkday.com/vi/blog/wp-content/uploads/chup-anh-dep-bang-dien-thoai-25.jpg" alt="User Avatar" style="border-radius: 50%; height: 34px; width: 34px;">
+                    <img class="user-avatar rounded-circle" src="https://icons.veryicon.com/png/o/application/cloud-supervision-platform-vr10/admin-5.png" alt="User Avatar" style="border-radius: 50%; height: 34px; width: 34px;">
                 </a>
 
                 <div class="user-menu">
+                    <a class="nav-link" th:href="@{/profile}"><i class="fa fa-user"></i> Cập nhật thông tin</a>
                     <a class="nav-link" th:href="@{/}"><i class="fa fa-user"></i> Trang khách</a>
 
                     <a class="nav-link" th:href="@{/user_logout}"><i class="fa fa-power-off"></i> Đăng xuất</a>
