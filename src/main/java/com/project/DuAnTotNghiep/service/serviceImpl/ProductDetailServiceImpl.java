@@ -46,7 +46,7 @@ private ProductDetailRepository productDetailRepository;
 
     @Override
     public ProductDetail getProductDetailByProductCode(String code){
-        Product product = productRepository.findByCode(code);
+        Product product = (Product) productRepository.findByCode(code);
 
         return productDetailRepository.getProductDetailByProduct(product);
 

@@ -42,30 +42,50 @@ public class ProductServiceImpl implements ProductService {
     private ProductDiscountRepository productDiscountRepository;
 
     @Override
-    public Page<Product> getAllProduct(Pageable pageable0) {
-        return productRepository.findAll(pageable0);
+    public Page<Product> getAllProduct(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     @Override
     public Page<ProductSearchDto> getAll(Pageable pageable) {
-
         return productRepository.getAll(pageable);
     }
 
     @Override
     public Product save(Product product) throws IOException {
+        // Check if the product has an ID (i.e., it's an existing product)
+        if (product.getId() != null) {
+            // Fetch the existing product from the database
+            Product existingProduct = productRepository.findById(product.getId())
+                    .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        if(product.getCode().trim() == "" || product.getCode() == null) {
-            Product productCurrent = productRepository.findTopByOrderByIdDesc();
-            Long nextCode = (productCurrent == null) ? 1 : productCurrent.getId() + 1;
-            String productCode = "SP" + String.format("%04d", nextCode);
-            product.setCode(productCode);
+            // Retain the existing code (don't update it)
+            product.setCode(existingProduct.getCode());
+        } else {
+            // New product: generate a new code
+            String code = product.getCode();
+
+            if (code == null || code.trim().isEmpty()) {
+                Product productCurrent = productRepository.findTopByOrderByIdDesc();
+                Long nextCode = (productCurrent == null) ? 1 : productCurrent.getId() + 1;
+                code = "SP" + String.format("%04d", nextCode);
+
+                while (productRepository.existsByCode(code)) {
+                    nextCode++;
+                    code = "SP" + String.format("%04d", nextCode);
+                }
+            } else {
+                code = code.trim();
+                if (productRepository.existsByCode(code)) {
+                    throw new ShopApiException(HttpStatus.CONFLICT, "Product code already exists: " + code);
+                }
+            }
+            product.setCode(code);
         }
 
         Double minPrice = Double.valueOf(1000000000);
-        for (ProductDetail productDetail:
-             product.getProductDetails()) {
-            if(productDetail.getPrice() < minPrice) {
+        for (ProductDetail productDetail : product.getProductDetails()) {
+            if (productDetail.getPrice() < minPrice) {
                 minPrice = productDetail.getPrice();
             }
             QRCodeService.generateQRCode(productDetail.getBarcode(), productDetail.getBarcode());
@@ -73,26 +93,30 @@ public class ProductServiceImpl implements ProductService {
 
         product.setPrice(minPrice);
         product.setDeleteFlag(false);
-        product.setCreateDate(LocalDateTime.now());
+        product.setCreateDate(product.getCreateDate() != null ? product.getCreateDate() : LocalDateTime.now());
         product.setUpdatedDate(LocalDateTime.now());
         return productRepository.save(product);
     }
 
+
     @Override
-    public Product delete(Long id)  {
-        Product product = productRepository.findById(id).orElseThrow( () -> new NotFoundException("Product not found"));
+    public Product delete(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found"));
         product.setDeleteFlag(true);
         return productRepository.save(product);
     }
 
     @Override
     public Product getProductByCode(String code) {
-        Product product = productRepository.findByCode(code);
-        if(product != null) {
+        List<Product> products = productRepository.findByCode(code);
 
-            return product;
+        if (products.isEmpty()) {
+            throw new NotFoundException("No product found with code: " + code);
+        } else if (products.size() == 1) {
+            return products.get(0);
+        } else {
+            throw new ShopApiException(HttpStatus.CONFLICT, "Multiple products found with code: " + code);
         }
-        return null;
     }
 
     @Override
@@ -100,15 +124,14 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.existsByCode(code);
     }
 
+    @Override
     public Page<Product> search(String productName, Pageable pageable) {
-        Page<Product> page = productRepository.searchProductName(productName, pageable);
-        return page;
+        return productRepository.searchProductName(productName, pageable);
     }
 
     @Override
-    public Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai,Integer trangThai, Pageable pageable) {
-        Page<ProductSearchDto> productSearchDtos = productRepository.listSearchProduct(maSanPham,tenSanPham,nhanHang,chatLieu,theLoai,trangThai,pageable);
-        return productSearchDtos;
+    public Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable) {
+        return productRepository.listSearchProduct(maSanPham, tenSanPham, nhanHang, chatLieu, theLoai, trangThai, pageable);
     }
 
     @Override
@@ -137,45 +160,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductByBarcode(String barcode) {
         ProductDetail productDetail = productDetailRepository.findByBarcodeContainingIgnoreCase(barcode);
-        if(productDetail == null) {
-            throw  new ShopApiException(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm có mã vạch: " + barcode);
+        if (productDetail == null) {
+            throw new ShopApiException(HttpStatus.NOT_FOUND, "Không tìm thấy sản phẩm có mã vạch: " + barcode);
         }
         Product product = productDetail.getProduct();
-        ProductDto productDto = new ProductDto();
-
-        productDto.setId(product.getId());
-        productDto.setCode(product.getCode());
-        productDto.setName(product.getName());
-        productDto.setCategoryName(product.getCategory().getName());
-        productDto.setImageUrl(product.getImage().get(0).getLink());
-        productDto.setDescription(product.getDescribe());
-        productDto.setPriceMin(product.getProductDetails().get(0).getPrice());
-        productDto.setCreateDate(product.getCreateDate());
-        productDto.setUpdatedDate(product.getUpdatedDate());
-
-        List<ProductDetailDto> productDetailDtoList = new ArrayList<>();
-
-        ProductDetailDto productDetailDto = new ProductDetailDto();
-        productDetailDto.setId(productDetail.getId());
-        productDetailDto.setProductId(product.getId());
-        productDetailDto.setColor(productDetail.getColor());
-        productDetailDto.setSize(productDetail.getSize());
-        productDetailDto.setPrice(productDetail.getPrice());
-        productDetailDto.setQuantity(productDetail.getQuantity());
-        productDetailDto.setBarcode(productDetail.getBarcode());
-        productDetailDtoList.add(productDetailDto);
-        ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-        if(productDiscount != null) {
-//            Date endDate = productDiscount.getEndDate();
-//            Date currentDate = new Date();
-//            if (currentDate.compareTo(endDate) > 0) {
-//            }
-            productDetailDto.setDiscountedPrice(productDiscount.getDiscountedAmount());
-
-        }
-        productDto.setProductDetailDtos(productDetailDtoList);
-
-        return productDto;
+        return convertToDto(product);
     }
 
     @Override
@@ -187,9 +176,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto getByProductDetailId(Long detailId) {
-        return convertToDto(productRepository.findByProductDetail_Id(detailId));
+        Product product = productRepository.findByProductDetail_Id(detailId);
+        if (product == null) {
+            throw new NotFoundException("No product found with detail ID: " + detailId);
+        }
+        return convertToDto(product);
     }
-
 
     private ProductDto convertToDto(Product product) {
         ProductDto productDto = new ProductDto();
@@ -203,10 +195,9 @@ public class ProductServiceImpl implements ProductService {
         productDto.setUpdatedDate(product.getUpdatedDate());
 
         List<ProductDetailDto> productDetailDtoList = new ArrayList<>();
-        Double priceMin = Double.valueOf(100000000);
-        for (ProductDetail productDetail:
-             product.getProductDetails()) {
-            if(productDetail.getPrice() < priceMin) {
+        Double priceMin = Double.valueOf(1000000000);
+        for (ProductDetail productDetail : product.getProductDetails()) {
+            if (productDetail.getPrice() < priceMin) {
                 priceMin = productDetail.getPrice();
             }
             ProductDetailDto productDetailDto = new ProductDetailDto();
@@ -218,7 +209,7 @@ public class ProductServiceImpl implements ProductService {
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
             ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-            if(productDiscount != null) {
+            if (productDiscount != null) {
                 productDto.setDiscounted(true);
                 productDetailDto.setDiscountedPrice(productDiscount.getDiscountedAmount());
                 if (productDiscount.getDiscountedAmount() < priceMin) {
