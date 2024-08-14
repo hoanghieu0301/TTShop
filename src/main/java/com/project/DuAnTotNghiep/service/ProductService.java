@@ -44,4 +44,6 @@ public interface ProductService {
     List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest);
 
     ProductDto getByProductDetailId(Long detailId);
+
+    List<ProductDto> getAllProducts();
 }

@@ -3,10 +3,12 @@ package com.project.DuAnTotNghiep.controller.admin;
 
 import com.lowagie.text.DocumentException;
 import com.project.DuAnTotNghiep.dto.Bill.*;
+import com.project.DuAnTotNghiep.dto.Product.ProductDto;
 import com.project.DuAnTotNghiep.entity.Bill;
 import com.project.DuAnTotNghiep.entity.enumClass.BillStatus;
 import com.project.DuAnTotNghiep.entity.enumClass.InvoiceType;
 import com.project.DuAnTotNghiep.service.BillService;
+import com.project.DuAnTotNghiep.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +39,8 @@ public class BillController {
     @Autowired
     private BillService billService;
 
+    @Autowired
+    private ProductService productService;
 
     @GetMapping("/bill-list")
     public String getBill(
@@ -129,18 +133,49 @@ public class BillController {
         return "redirect:/admin/getbill-detail/" + billId ;
     }
 
+    @PostMapping("/add-product-to-bill")
+    public String addProductToBill(@RequestParam Long billId, @RequestParam Long productId, @RequestParam int quantity, RedirectAttributes redirectAttributes) {
+        try {
+            billService.addProductToBill(billId, productId, quantity);
+            redirectAttributes.addFlashAttribute("message", "Sản phẩm đã được thêm vào hóa đơn!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm sản phẩm vào hóa đơn!");
+        }
+        return "redirect:/admin/getbill-detail/" + billId;
+    }
+
+    @PostMapping("/update-product-quantity")
+    public String updateProductQuantity(@RequestParam Long billDetailId, @RequestParam int quantity, RedirectAttributes redirectAttributes) {
+        try {
+            billService.updateProductQuantity(billDetailId, quantity);
+            redirectAttributes.addFlashAttribute("message", "Số lượng sản phẩm đã được cập nhật!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật số lượng sản phẩm!");
+        }
+        return "redirect:/admin/getbill-detail/" + billDetailId;
+    }
+
+    @PostMapping("/delete-product-from-bill")
+    public String deleteProductFromBill(@RequestParam Long billDetailId, RedirectAttributes redirectAttributes) {
+        try {
+            billService.deleteProductFromBill(billDetailId);
+            redirectAttributes.addFlashAttribute("message", "Sản phẩm đã được xóa khỏi hóa đơn!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa sản phẩm khỏi hóa đơn!");
+        }
+        return "redirect:/admin/getbill-detail/" + billDetailId;
+    }
 
     @GetMapping("/getbill-detail/{maHoaDon}")
     public String getBillDetail(Model model, @PathVariable("maHoaDon") Long maHoaDon) {
-
         BillDetailDtoInterface billDetailDtoInterface = billService.getBillDetail(maHoaDon);
         List<BillDetailProduct> billDetailProducts = billService.getBillDetailProduct(maHoaDon);
-        Double total = Double.valueOf("0");
-            for (BillDetailProduct billDetailProduct:
-                 billDetailProducts) {
-                int q = billDetailProduct.getSoLuong();
-                total += billDetailProduct.getGiaTien() * q;
-            }
+        Double total = 0.0;
+        for (BillDetailProduct billDetailProduct : billDetailProducts) {
+            total += billDetailProduct.getGiaTien() * billDetailProduct.getSoLuong();
+        }
+        List<ProductDto> products = productService.getAllProducts(); // Get list of all products
+        model.addAttribute("products", products); // Add products to the model
         model.addAttribute("billDetailProduct", billDetailProducts);
         model.addAttribute("billdetail", billDetailDtoInterface);
         model.addAttribute("total", total);

@@ -184,21 +184,34 @@
                                 <button type="button" class="bg2 size-102" id="add-address">Thêm địa chỉ +</button>
                                 <div id="address-select-group" style="display: none">
                                     <div class="rs1-select2 rs2-select2 bor8 bg0 mb-12 mt-9">
-                                        <select class="js-select2" name="tỉnh" id="tỉnh"></select>
+                                        <label for="tinhThanhPho" class="input-label">Tỉnh/Thành phố</label>
+                                        <select class="js-select2-custom custom-select" name="tinhThanhPho" id="tinhThanhPho" size="1">
+                                            <option value="" selected>Tỉnh/Thành phố</option>
+                                            <!-- Add options here -->
+                                        </select>
                                         <div class="dropDownSelect2"></div>
                                     </div>
                                     <div class="rs1-select2 rs2-select2 bor8 bg0 mb-12 mt-9">
-                                        <select class="js-select2" name="huyện" id="huyện"></select>
+                                        <label for="quanHuyen" class="input-label">Quận/Huyện</label>
+                                        <select class="js-select2-custom custom-select" name="quanHuyen" id="quanHuyen" size="1">
+                                            <option value="" selected>Quận/Huyện</option>
+                                            <!-- Add options here -->
+                                        </select>
                                         <div class="dropDownSelect2"></div>
                                     </div>
                                     <div class="rs1-select2 rs2-select2 bor8 bg0 mb-12 mt-9">
-                                        <select class="js-select2" name="ward" id="ward"></select>
+                                        <label for="phuongXa" class="input-label">Phường/Xã</label>
+                                        <select class="js-select2-custom custom-select" name="phuongXa" id="phuongXa" size="1">
+                                            <option value="" selected>Phường/Xã</option>
+                                            <!-- Add options here -->
+                                        </select>
                                         <div class="dropDownSelect2"></div>
                                     </div>
                                     <div class="bor8 bg0 mb-12">
-                                        <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="street" id="street" placeholder="Số nhà, đường,xóm">
+                                        <label for="houseDeliveryAddressLabel" class="input-label">Số nhà</label>
+                                        <input type="text" class="form-control" name="emailDeliveryAddress" id="houseDeliveryAddressLabel" placeholder="44 hoặc tên địa điểm gần nhà bạn" aria-label="44 hoặc tên địa điểm gần nhà bạn">
                                     </div>
-                                    <span class="stext-111 errorStreet" style="color: đỏ; display: none">Vui lòng nhập số nhà, đường, xóm</span>
+                                    <span class="stext-111 errorStreet" style="color: red; display: none">Vui lòng nhập số nhà, đường, xóm</span>
                                     <div>
                                         <button class="bg2 size-102 hov-btn3" type="button" id="save-address-btn">Lưu</button>
                                         <button class="bor8 size-102" type="button" id="cancel-add-address">Bỏ qua</button>
@@ -212,7 +225,7 @@
                             <span class="stext-110 cl2">Phí ship:</span>
                         </div>
                         <div class="size-209">
-                            <span class="mtext-110 cl2"> 0 </span>
+                            <span id="fee" class="mtext-110 cl2"> 0 </span>
                         </div>
                     </div>
                     <div class="flex-w flex-t bor12 p-t-15 p-b-30">
@@ -274,7 +287,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content" style="max-width24: 100%">
                 <div class="modal-header">
-                    <h5 class="modal-title" style="font-size: px; font-weight: bold">Điều khoản</h5>
+                    <h5 class="modal-title" style="font-size: 10px; font-weight: bold">Điều khoản</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -309,11 +322,22 @@
         $(document).ready(function () {
             var voucherList = /*[[${discountCodes}]]*/ '';
             var voucherChoosed;
-            var province = [];
-            var district = [];
-            var ward = [];
-            var addressSelected = {};
+            var tinhThanhPho = $('#tinhThanhPho');
+            var quanHuyen = $('#quanHuyen');
+            var phuongXa = $('#phuongXa');
+            var houseDeliveryAddress = $('#houseDeliveryAddressLabel');
+            var quanHuyenData = [];
+            var tinhThanhPhoSelected = '';
+            var quanHuyenSelected = '';
+            var phuongXaSelected = '';
+            var phuongThucVanChuyen = 53320;
+            var shippingFee = 0;
             const maxCashPaymentAmount = 10000000; // 10 million VND
+            var addressSelected = {};
+
+            function getTypeOfDelivery(selectedType) {
+                phuongThucVanChuyen = selectedType.value;
+            }
 
             $('.how-itemcart1').on('click', function () {
                 var cartId = $(this).parent().parent().find('.cartId').val();
@@ -348,12 +372,12 @@
                 const selectedAddress = $(this).find('p').text().trim();
                 const addressParts = selectedAddress.split(', ');
                 addressSelected = {
-                    street: addressParts[0],
-                    ward: addressParts[1],
-                    district: addressParts[2],
-                    province: addressParts[3]
+                    houseDeliveryAddress: addressParts[0],
+                    phuongXa: addressParts[1],
+                    quanHuyen: addressParts[2],
+                    tinhThanhPho: addressParts[3]
                 };
-                calculateShippingFee();
+                updateShippingFee();
             });
 
             $("#add-address").on('click', function () {
@@ -362,18 +386,19 @@
             });
 
             $("#save-address-btn").on('click', function () {
-                const province = $("#tỉnh").val();
-                const district = $("#huyện").val();
-                const ward = $("#ward").val();
-                const street = $("#street").val().trim();
 
-                if (district == "" || ward == "" || street == "") {
-                    swal("Lỗi", "Vui lòng nhập đầy đủ địa chỉ");
+                const tinhThanhPho = $("#tinhThanhPho").val();
+                const quanHuyen = $("#quanHuyen").val();
+                const phuongXa = $("#phuongXa").val();
+                const houseDeliveryAddress = $("#houseDeliveryAddressLabel").val().trim();
+
+                if (tinhThanhPho === "" || quanHuyen === "" || phuongXa === "" || houseDeliveryAddress === "") {
+                    swal("Lỗi", "Vui lòng nhập đầy đủ địa chỉ", "error");
                 } else {
-                    addressSelected.street = street;
-                    addressSelected.province = $("#tỉnh option:selected").text();
-                    addressSelected.district = $("#huyện option:selected").text();
-                    addressSelected.ward = $("#ward option:selected").text();
+                    addressSelected.houseDeliveryAddress = houseDeliveryAddress;
+                    addressSelected.tinhThanhPho = $("#tinhThanhPho option:selected").text();
+                    addressSelected.quanHuyen = $("#quanHuyen option:selected").text();
+                    addressSelected.phuongXa = $("#phuongXa option:selected").text();
 
                     var dataSend = {
                         address: Object.entries(addressSelected)
@@ -389,15 +414,24 @@
                         data: JSON.stringify(dataSend),
                         success: function (data) {
                             const content = `<div class="shipping-choose">
-                                    <div id="shipping${data.id}">
-                                        <p>${data.address}</p>
-                                    </div>
-                                 </div>`;
+                                        <div id="shipping${data.id}">
+                                            <p>${data.address}</p>
+                                        </div>
+                                     </div>`;
                             $('.address-list').append(content);
+
                             $(".shipping-choose").on('click', function () {
                                 $(".shipping-choose").removeClass('active');
                                 $(this).addClass('active');
-                                calculateShippingFee();
+                                const selectedAddress = $(this).find('p').text().trim();
+                                const addressParts = selectedAddress.split(', ');
+                                addressSelected = {
+                                    houseDeliveryAddress: addressParts[0],
+                                    phuongXa: addressParts[1],
+                                    quanHuyen: addressParts[2],
+                                    tinhThanhPho: addressParts[3]
+                                };
+                                updateShippingFee();
                             });
                         },
                         error: function (xhr, status, error) {
@@ -408,7 +442,7 @@
 
                     $("#add-address").show();
                     $("#address-select-group").hide();
-                    calculateShippingFee();
+                    updateShippingFee();
                 }
             });
 
@@ -417,133 +451,117 @@
                 $("#address-select-group").hide();
             });
 
-            function loadProvinceSelect() {
-                $.ajax({
-                    type: 'GET',
-                    dataType: "json",
-                    url: 'https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province',
-                    headers: {
-                        'Token': '556400cb-42ad-11ef-8e53-0a00184fe694'
-                    },
-                    success: function (data) {
-                        province = data.data.map(item => ({ value: item.ProvinceID, label: item.ProvinceName }));
-                        populateSelect("#tỉnh", province, "Chọn tỉnh");
-                    }
-                });
-            }
-
-            function loadDistrictSelect(provinceId) {
-                $.ajax({
-                    type: 'GET',
-                    dataType: "json",
-                    url: `https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district`,
-                    headers: {
-                        'Token': '556400cb-42ad-11ef-8e53-0a00184fe694'
-                    },
-                    data: { "province_id": provinceId },
-                    success: function (data) {
-                        district = data.data.map(item => ({ value: item.DistrictID, label: item.DistrictName }));
-                        populateSelect("#huyện", district, "Chọn quận, huyện");
-                    }
-                });
-            }
-
-            function loadWardSelect(districtId) {
-                $.ajax({
-                    type: 'GET',
-                    dataType: "json",
-                    url: `https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward`,
-                    headers: {
-                        'Token': '556400cb-42ad-11ef-8e53-0a00184fe694'
-                    },
-                    data: { "district_id": districtId },
-                    success: function (data) {
-                        ward = data.data.map(item => ({ value: item.WardCode, label: item.WardName }));
-                        populateSelect("#ward", ward, "Chọn phường, xã");
-                    }
-                });
-            }
-
-            function populateSelect(selector, data, placeholder) {
-                var selectElement = document.querySelector(selector);
-                selectElement.innerHTML = `<option value="">${placeholder}</option>`;
-                data.forEach(item => {
-                    var option = document.createElement("option");
-                    option.text = item.label;
-                    option.value = item.value;
-                    selectElement.appendChild(option);
-                });
-            }
-
-            $("#tỉnh").on('change', function () {
-                var provinceId = $(this).val();
-                if (provinceId !== "") {
-                    loadDistrictSelect(provinceId);
-                } else {
-                    $("#huyện").html('');
-                    $("#ward").html('');
-                }
-            });
-
-            $("#huyện").on('change', function () {
-                var districtId = $(this).val();
-                if (districtId !== "") {
-                    loadWardSelect(districtId);
-                } else {
-                    $("#ward").html('');
-                }
-            });
-
-            $("#ward").on('change', function () {
-                const selectedOption = ward.find(option => option.value === $(this).val());
-                addressSelected.ward = selectedOption.label;
-                calculateShippingFee();
-            });
-
-            function calculateShippingFee() {
-                if (addressSelected.province && addressSelected.district && addressSelected.ward && addressSelected.street) {
-                    var requestData = {
-                        "service_type_id": 2507826,
-                        "to_district_id": addressSelected.district,
-                        "to_ward_code": addressSelected.ward
-                    };
-
-                    $.ajax({
-                        type: 'POST',
-                        url: 'https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee',
-                        headers: {
-                            'Token': '556400cb-42ad-11ef-8e53-0a00184fe694',
-                            'ShopId': '192876'
-                        },
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify(requestData),
-                        success: function (response) {
-                            if (response.code === 200) {
-                                const shippingFee = response.data.total;
-                                document.querySelector('.mtext-110.cl2').innerText = `${shippingFee} VND`;
-                                updateTotalAmount(shippingFee);
-                            } else {
-                                console.error('Lỗi khi tính phí vận chuyển:', response.message);
-                                alert('Lỗi tính phí vận chuyển: ' + response.message);
-                            }
-                        },
-                        error: function (error) {
-                            console.error('Lỗi mạng:', error);
-                            alert('Đã xảy ra lỗi khi tính phí vận chuyển.');
-                        }
+            $.ajax({
+                type: "GET",
+                url: "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province",
+                contentType: "application/json",
+                headers: {
+                    "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
+                },
+                success: function (response) {
+                    $.each(response.data, function (index, item) {
+                        let html = `<option value="${item.ProvinceID}">${String(item.ProvinceName)}</option>`;
+                        tinhThanhPho.append(html);
                     });
-                } else {
-                    console.error('Thông tin địa chỉ không đầy đủ');
-                    alert('Vui lòng điền đầy đủ thông tin địa chỉ.');
+                },
+                error: function (error) {
+                    console.error('Xảy ra lỗi: ', error);
                 }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district",
+                contentType: "application/json",
+                headers: {
+                    "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
+                },
+                success: function (response) {
+                    quanHuyenData = response.data;
+                },
+                error: function (error) {
+                    console.error('Xảy ra lỗi: ', error);
+                }
+            });
+
+            tinhThanhPho.on('change', function () {
+                tinhThanhPhoSelected = tinhThanhPho.find('option:selected').text();
+                quanHuyen.html('<option value="">Quận/Huyện</option>');
+                phuongXa.html('<option value="">Phường/Xã</option>');
+                quanHuyenData.forEach((item) => {
+                    if (item.ProvinceID == tinhThanhPho.val()) {
+                        let html = `<option value="${item.DistrictID}">${String(item.DistrictName)}</option>`;
+                        quanHuyen.append(html);
+                    }
+                });
+                updateAddressDisplay();
+            });
+
+            quanHuyen.on('change', function () {
+                quanHuyenSelected = quanHuyen.find('option:selected').text();
+                $.ajax({
+                    type: "GET",
+                    url: "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + quanHuyen.val(),
+                    contentType: "application/json",
+                    headers: {
+                        "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
+                    },
+                    success: function (response) {
+                        phuongXa.html('<option value="">Phường/Xã</option>');
+                        $.each(response.data, function (index, item) {
+                            let html = `<option value="${item.WardCode}">${String(item.WardName)}</option>`;
+                            phuongXa.append(html);
+                        });
+                    },
+                    error: function (error) {
+                        console.error('Xảy ra lỗi: ', error);
+                    }
+                });
+                updateAddressDisplay();
+            });
+
+            phuongXa.on('change', function () {
+                phuongXaSelected = phuongXa.find('option:selected').text();
+                updateAddressDisplay();
+                updateShippingFee();
+            });
+
+            houseDeliveryAddress.on('input', function () {
+                updateAddressDisplay();
+            });
+
+            function updateAddressDisplay() {
+                const fullAddress = `${houseDeliveryAddress.val()}, ${phuongXaSelected}, ${quanHuyenSelected}, ${tinhThanhPhoSelected}`;
+                $('#full-address').text(fullAddress);
             }
 
-            function updateTotalAmount(shippingFee) {
-                var totalAmount = parseFloat(removeAnyNonDigit($('#sub-total').text())) + shippingFee;
-                $('#all-total').text(formatNumber(totalAmount) + ' VND');
+            function updateShippingFee() {
+                phuongXaSelected = phuongXa.val();
+                $.ajax({
+                    type: "GET",
+                    url: "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+                    contentType: "application/json",
+                    headers: {
+                        "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
+                    },
+                    data: {
+                        shop_id: "190713",
+                        weight: 100,
+                        service_id: phuongThucVanChuyen,
+                        to_ward_code: phuongXaSelected,
+                        to_district_id: quanHuyen.val()
+                    },
+                    success: function (response) {
+                        shippingFee = response.data.total;
+                        var formattedMoney = parseFloat(shippingFee).toLocaleString('en-US');
+                        $('#fee').text(formattedMoney);
+                        calculateTotal(); // Ensure the total is updated whenever the shipping fee changes
+                    },
+                    error: function (error) {
+                        console.error('Xảy ra lỗi: ', error);
+                    }
+                });
             }
-
-            loadProvinceSelect();
 
             function updateSubtotal(row) {
                 var quantity = parseInt(row.find(".num-product").val());
@@ -580,6 +598,10 @@
                 $('#selected-voucher').attr('data-selected', "");
                 $("#voucher-pic").text('0');
             }
+            $(document).on('click', '.shipping-choose', function() {
+                const addressId = $(this).attr('id').replace('shipping', '');
+                updateShippingFee(addressId);
+            });
 
             function calculateTotal() {
                 var total = 0;
@@ -592,28 +614,11 @@
 
                 $('#sub-total').text(formatNumber(total) + ' VND');
 
-                if (voucherChoosed && parseFloat(voucherChoosed.minimumAmountInCart) > total) {
-                    resetVoucher();
-                }
+                // Calculate the final total including the shipping fee and voucher discount
+                var voucherDiscount = parseFloat(removeAnyNonDigit($("#voucher-pic").text())) || 0;
+                var finalTotal = total + shippingFee - voucherDiscount;
 
-                // Disable non-bank transfer methods if total exceeds 10 million VND
-                if (total > maxCashPaymentAmount) {
-                    $('input[name="paymentMethod"]').each(function () {
-                        if ($(this).val() != 3) { // Assuming 3 is the ID for bank transfer
-                            $(this).prop('checked', false);
-                            $(this).prop('disabled', true);
-                        } else {
-                            $(this).prop('checked', true);
-                        }
-                    });
-
-                    swal("Thanh toán", "Tổng giá trị đơn hàng vượt quá 10 triệu VND, vui lòng chọn phương thức thanh toán chuyển khoản.", "warning");
-                } else {
-                    $('input[name="paymentMethod"]').prop('disabled', false);
-                }
-
-                $('#all-total').text(formatNumber(total - parseFloat(removeAnyNonDigit($("#voucher-pic").text()))) + ' VND');
-                calculateVoucherPrice();
+                $('#all-total').text(formatNumber(finalTotal) + ' VND');
             }
 
             $('#checkAll').change(function () {
@@ -633,6 +638,7 @@
             $('.table-row').each(function () {
                 updateSubtotal($(this));
             });
+
             calculateTotal();
 
             $(".num-product").on('change', function () {
@@ -749,6 +755,11 @@
             });
 
             $("#submitBtn").on('click', async function () {
+                if (!tinhThanhPhoSelected || !quanHuyenSelected || !phuongXaSelected || !houseDeliveryAddress.val()) {
+                    swal("Lỗi", "Vui lòng nhập đầy đủ thông tin địa chỉ giao hàng.", "error");
+                    return;
+                }
+
                 var voucherId = $("#selected-voucher").attr('data-selected');
                 var orderDetails = [];
                 var promotion = removeAnyNonDigit($('#voucher-pic').text());
@@ -766,15 +777,10 @@
                     return;
                 }
 
-                if ($('.shipping-choose.active p').text().trim() == "") {
-                    swal("Thông báo", "Vui lòng chọn địa chỉ trước khi đặt hàng", "error");
-                    return;
-                }
-
                 var paymentMethodId = $('input[name="paymentMethod"]:checked').val();
-
                 const dataSend = {
                     paymentMethodId: paymentMethodId,
+                    // billingAddress: $('#full-address').text().trim(),
                     billingAddress: $('.shipping-choose.active p').text().trim(),
                     promotionPrice: promotion,
                     voucherId: voucherId,
@@ -830,41 +836,103 @@
                     });
                 }
             });
-        });
 
-        function removeAnyNonDigit(value) {
-            return value.replace(/\D/g, '');
-        }
-
-        function formatNumber(number) {
-            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-
-        var debounceTimer;
-        function updateToServer(row, quantity) {
-            if (debounceTimer) {
-                clearTimeout(debounceTimer);
-            }
-            var dataSend = {
-                id: row.find(".cartId").val(),
-                quantity: quantity
-            };
-            debounceTimer = setTimeout(async function () {
-                await $.ajax({
-                    type: 'POST',
-                    url: '/api/updateCart',
-                    data: JSON.stringify(dataSend),
-                    contentType: "application/json; charset=utf-8",
-                    success: function (data) {
+            $('#nhanh').on('change', function (selected) {
+                var type = parseInt($('#nhanh').val());
+                console.log(type);
+                $.ajax({
+                    type: "GET",
+                    url: "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+                    contentType: "application/json",
+                    headers: {
+                        "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
                     },
-                    error: function (xhr, status, error) {
-                        swal("Lỗi", xhr.responseJSON.message, "error");
-                        row.find(".num-product").val(1);
-                        updateToServer(row, 1);
+                    data: {
+                        shop_id: "190713",
+                        weight: 100,
+                        service_id: type,
+                        to_ward_code: phuongXaSelected,
+                        to_district_id: quanHuyenSelected
+                    },
+                    success: function (response) {
+                        var fee = response.data.total;
+                        var formattedMoney = parseFloat(fee).toLocaleString('en-US');
+                        console.log(formattedMoney);
+                        $('#fee').text(formattedMoney);
+                        shippingFee = fee; // Update shipping fee
+                        calculateTotal(); // Recalculate total
+                    },
+                    error: function (error) {
+                        console.error('Xảy ra lỗi: ', error);
                     }
                 });
-            }, 500);
-        }
+            });
+
+            $('#hoaToc').on('change', function () {
+                var type = parseInt($('#hoaToc').val());
+                console.log(type);
+                $.ajax({
+                    type: "GET",
+                    url: "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+                    contentType: "application/json",
+                    headers: {
+                        "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
+                    },
+                    data: {
+                        shop_id: "190713",
+                        weight: 500,
+                        service_id: type,
+                        to_ward_code: phuongXaSelected,
+                        to_district_id: quanHuyenSelected
+                    },
+                    success: function (response) {
+                        var fee = response.data.total;
+                        var formattedMoney = parseFloat(fee).toLocaleString('en-US');
+                        console.log(formattedMoney);
+                        $('#fee').text(formattedMoney);
+                        shippingFee = fee; // Update shipping fee
+                        calculateTotal(); // Recalculate total
+                    },
+                    error: function (error) {
+                        console.error('Xảy ra lỗi: ', error);
+                    }
+                });
+            });
+
+            function removeAnyNonDigit(value) {
+                return value.replace(/\D/g, '');
+            }
+
+            function formatNumber(number) {
+                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            var debounceTimer;
+            function updateToServer(row, quantity) {
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+                var dataSend = {
+                    id: row.find(".cartId").val(),
+                    quantity: quantity
+                };
+                debounceTimer = setTimeout(async function () {
+                    await $.ajax({
+                        type: 'POST',
+                        url: '/api/updateCart',
+                        data: JSON.stringify(dataSend),
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                        },
+                        error: function (xhr, status, error) {
+                            swal("Lỗi", xhr.responseJSON.message, "error");
+                            row.find(".num-product").val(1);
+                            updateToServer(row, 1);
+                        }
+                    });
+                }, 500);
+            }
+        });
     </script>
 
 

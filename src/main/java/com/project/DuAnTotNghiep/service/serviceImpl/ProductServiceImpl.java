@@ -183,6 +183,11 @@ public class ProductServiceImpl implements ProductService {
         return convertToDto(product);
     }
 
+    @Override
+    public List<ProductDto> getAllProducts() {
+        return List.of();
+    }
+
     private ProductDto convertToDto(Product product) {
         ProductDto productDto = new ProductDto();
         productDto.setId(product.getId());

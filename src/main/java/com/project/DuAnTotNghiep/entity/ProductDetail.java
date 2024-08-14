@@ -33,7 +33,6 @@ public class ProductDetail implements Serializable {
     @ManyToOne
     @JoinColumn(name = "colorId")
     private Color color;
-
     @OneToOne(mappedBy = "productDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductDiscount productDiscount;
 }

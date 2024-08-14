@@ -160,7 +160,15 @@
                                 <span class="text-muted">Không sử dụng</span>
                             </div>
                         </div>
-
+                        <div class="py-2 mb-4">
+                            <div>
+                                <h5>Địa chỉ nhận hàng:</h5>
+                            </div>
+                            <div th:if="${billdetail.diaChi != null}">
+                                    <span style="color: red; font-size: 16px" th:text="${billdetail.diaChi}">
+                                    </span>
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <div>
                                 Loại đơn :
@@ -241,7 +249,12 @@
                                         <th scope="row" colspan="5" class="border-0 text-end">
                                             Phí ship :
                                         </th>
-                                        <td class="border-0 text-end">0</td>
+                                        <td class="border-0 text-end">
+                                            <h4 class="m-0 fw-semibold"
+                                                th:text="${#numbers.formatDecimal(billdetail.tienKhuyenMai, 0, 'POINT', 0, 'COMMA')}">
+                                                $739.00
+                                            </h4>
+                                        </td>
                                     </tr>
                                     <!-- end tr -->
 

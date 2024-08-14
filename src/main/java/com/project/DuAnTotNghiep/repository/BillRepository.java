@@ -1,19 +1,13 @@
 package com.project.DuAnTotNghiep.repository;
 
-import com.project.DuAnTotNghiep.dto.Bill.BillDetailDtoInterface;
-import com.project.DuAnTotNghiep.dto.Bill.BillDetailProduct;
-import com.project.DuAnTotNghiep.dto.Bill.BillDtoInterface;
+import com.project.DuAnTotNghiep.dto.Bill.*;
 import com.project.DuAnTotNghiep.dto.Refund.RefundDto;
-import com.project.DuAnTotNghiep.dto.Statistic.DayInMonthStatistic;
-import com.project.DuAnTotNghiep.dto.Statistic.MonthInYearStatistic;
 import com.project.DuAnTotNghiep.dto.Statistic.OrderStatistic;
-import com.project.DuAnTotNghiep.entity.Account;
 import com.project.DuAnTotNghiep.entity.Bill;
-import com.project.DuAnTotNghiep.entity.Customer;
-import com.project.DuAnTotNghiep.entity.Product;
+import com.project.DuAnTotNghiep.entity.BillDetail;
+import com.project.DuAnTotNghiep.entity.ProductDetail;
 import com.project.DuAnTotNghiep.entity.enumClass.BillStatus;
 import com.project.DuAnTotNghiep.entity.enumClass.InvoiceType;
-import com.project.DuAnTotNghiep.repository.Specification.BillSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,7 +19,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -67,7 +60,15 @@ public interface BillRepository extends JpaRepository<Bill, Long>, JpaSpecificat
     @Modifying
     @Query(value = "UPDATE bill SET status=:status WHERE id=:id", nativeQuery = true)
     @Transactional
-    int updateStatus(@Param("status") String status,@Param("id") Long id);
+    int updateStatus(@Param("status") String status, @Param("id") Long id);
+
+    @Query("SELECT bd FROM BillDetail bd WHERE bd.bill.id = :billId")
+    List<BillDetail> findAllBillDetailsByBillId(@Param("billId") Long billId);
+
+    @Modifying
+    @Query(value = "DELETE FROM BillDetail bd WHERE bd.id = :billDetailId")
+    @Transactional
+    void deleteBillDetailById(@Param("billDetailId") Long billDetailId);
 
 
     @Query(value = "select distinct b.id as maDonHang,b.code as maDinhDanh,b.billing_address as diaChi," +

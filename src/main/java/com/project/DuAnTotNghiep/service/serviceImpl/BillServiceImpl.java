@@ -8,11 +8,10 @@ import com.project.DuAnTotNghiep.entity.*;
 import com.project.DuAnTotNghiep.entity.enumClass.BillStatus;
 import com.project.DuAnTotNghiep.entity.enumClass.InvoiceType;
 import com.project.DuAnTotNghiep.exception.NotFoundException;
+import com.project.DuAnTotNghiep.repository.BillDetailRepository;
 import com.project.DuAnTotNghiep.repository.BillRepository;
 import com.project.DuAnTotNghiep.repository.ProductDetailRepository;
-import com.project.DuAnTotNghiep.repository.ProductRepository;
 import com.project.DuAnTotNghiep.repository.Specification.BillSpecification;
-import com.project.DuAnTotNghiep.repository.Specification.ProductSpecification;
 import com.project.DuAnTotNghiep.service.BillService;
 import com.project.DuAnTotNghiep.utils.UserLoginUtil;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.DateFormatter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
@@ -45,6 +43,9 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     private ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    private BillDetailRepository billDetailRepository;
 
     @Override
     public Page<BillDtoInterface> findAll(Pageable pageable) {
@@ -78,14 +79,12 @@ public class BillServiceImpl implements BillService {
         } catch (IllegalArgumentException e) {
 
         }
-        return billRepository.listSearchBill( maDinhDanh,
-                 ngayTaoStart,
-                 ngayTaoEnd,
-                status,
-                 invoiceType,
-                 soDienThoai,
-                 hoVaTen,
-                pageable);
+        return billRepository.listSearchBill(maDinhDanh, ngayTaoStart, ngayTaoEnd, status, invoiceType, soDienThoai, hoVaTen, pageable);
+    }
+
+    @Override
+    public List<BillDtoInterface> searchListBill(String maDinhDanh, LocalDateTime ngayTaoStart, LocalDateTime ngayTaoEnd, String trangThai, String loaiDon, String soDienThoai, Integer phiShip, String hoVaTen) {
+        return List.of();
     }
 
     @Override
@@ -103,20 +102,13 @@ public class BillServiceImpl implements BillService {
         } catch (IllegalArgumentException e) {
 
         }
-        return billRepository.listSearchBill( maDinhDanh,
-                ngayTaoStart,
-                ngayTaoEnd,
-                status,
-                invoiceType,
-                soDienThoai,
-                hoVaTen);
+        return billRepository.listSearchBill(maDinhDanh, ngayTaoStart, ngayTaoEnd, status, invoiceType, soDienThoai, hoVaTen);
     }
 
     @Override
     public Bill updateStatus(String status, Long id) {
-
         // Nếu hủy thì cộng lại số lượng tồn
-        if(status.equals("HUY")) {
+        if (status.equals("HUY")) {
             List<BillDetailProduct> billDetailProducts = billRepository.getBillDetailProduct(id);
             billDetailProducts.forEach(item -> {
                 ProductDetail productDetail = productDetailRepository.findById(item.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy thuộc tính " + item.getId()));
@@ -155,6 +147,7 @@ public class BillServiceImpl implements BillService {
     public List<BillDetailProduct> getBillDetailProduct(Long maHoaDon) {
         return billRepository.getBillDetailProduct(maHoaDon);
     }
+
 
     public void exportToExcel(HttpServletResponse response, Page<BillDtoInterface> bills, String exportUrl) throws IOException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -375,6 +368,34 @@ public class BillServiceImpl implements BillService {
     public Page<BillDto> getAllValidBillToReturn(Pageable pageable) {
         return billRepository.findValidBillToReturn(pageable).map(this::convertToDto);
     }
+
+    @Override
+    public void addProductToBill(Long billId, Long productId, int quantity) {
+        Bill bill = billRepository.findById(billId).orElseThrow(() -> new NotFoundException("Không tìm thấy hóa đơn"));
+        ProductDetail productDetail = productDetailRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
+
+        BillDetail billDetail = new BillDetail();
+        billDetail.setBill(bill);
+        billDetail.setProductDetail(productDetail);
+        billDetail.setQuantity(quantity);
+        billDetail.setMomentPrice(productDetail.getPrice()); // Assuming the moment price is the current price
+        billDetailRepository.save(billDetail);
+    }
+
+    @Override
+    public void updateProductQuantity(Long billDetailId, int quantity) {
+        BillDetail billDetail = billDetailRepository.findById(billDetailId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy chi tiết hóa đơn"));
+        billDetail.setQuantity(quantity);
+        billDetailRepository.save(billDetail);
+    }
+
+    @Override
+    public void deleteProductFromBill(Long billDetailId) {
+        billDetailRepository.deleteById(billDetailId);
+    }
+
 
     private BillDto convertToDto(Bill bill) {
         BillDto billDto = new BillDto();

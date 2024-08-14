@@ -143,7 +143,7 @@ public class AccountServiceImpl implements AccountService {
         List<AddressShippingDto> addressShippingDtos = new ArrayList<>();
         List<AddressShipping> addressShippingList = addressShippingRepository.findAllByCustomer_Account_Id(account.getId());
         for (AddressShipping addressShipping:
-             addressShippingList) {
+                addressShippingList) {
             AddressShippingDto addressShippingDto = new AddressShippingDto();
             addressShippingDto.setId(addressShipping.getId());
             addressShippingDto.setAddress(addressShipping.getAddress());
