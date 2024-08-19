@@ -42,7 +42,10 @@ private ProductDetailRepository productDetailRepository;
         }
 
     }
-
+    @Override
+    public void addNewProductDetail(Long momentPrice, int quantity, Integer billId, Integer productDetailId) {
+        productDetailRepository.addNewProductDetail(momentPrice, quantity, billId, productDetailId);
+    }
 
     @Override
     public ProductDetail getProductDetailByProductCode(String code){

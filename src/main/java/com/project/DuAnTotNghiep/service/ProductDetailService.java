@@ -14,6 +14,8 @@ import java.util.List;
 public interface ProductDetailService {
     ProductDetail save(ProductDetail productDetail);
 
+    void addNewProductDetail(Long momentPrice, int quantity, Integer billId, Integer productDetailId);
+
     ProductDetail getProductDetailByProductCode(String code) throws NotFoundException;
 
     List<ProductDetailDto> getByProductId(Long id) throws com.project.DuAnTotNghiep.exception.NotFoundException;

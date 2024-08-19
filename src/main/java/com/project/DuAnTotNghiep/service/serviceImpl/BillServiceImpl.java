@@ -17,6 +17,7 @@ import com.project.DuAnTotNghiep.utils.UserLoginUtil;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.*;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
@@ -34,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -370,18 +373,63 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    @Transactional
     public void addProductToBill(Long billId, Long productId, int quantity) {
+        // Step 1: Fetch the Bill entity
         Bill bill = billRepository.findById(billId).orElseThrow(() -> new NotFoundException("Không tìm thấy hóa đơn"));
+
+        // Ensure bill details are loaded
+        Hibernate.initialize(bill.getBillDetail());
+
+        // Step 2: Fetch the ProductDetail entity
         ProductDetail productDetail = productDetailRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm"));
 
-        BillDetail billDetail = new BillDetail();
-        billDetail.setBill(bill);
-        billDetail.setProductDetail(productDetail);
-        billDetail.setQuantity(quantity);
-        billDetail.setMomentPrice(productDetail.getPrice()); // Assuming the moment price is the current price
-        billDetailRepository.save(billDetail);
+        // Step 3: Check if the product already exists in the bill and update or create BillDetail
+        Optional<BillDetail> existingBillDetailOpt = billDetailRepository.findByBillAndProductDetail(bill, productDetail);
+        if (existingBillDetailOpt.isPresent()) {
+            BillDetail existingBillDetail = existingBillDetailOpt.get();
+            existingBillDetail.setQuantity(existingBillDetail.getQuantity() + quantity);
+            billDetailRepository.save(existingBillDetail);
+        } else {
+            BillDetail newBillDetail = new BillDetail();
+            newBillDetail.setBill(bill);
+            newBillDetail.setProductDetail(productDetail);
+            newBillDetail.setQuantity(quantity);
+            newBillDetail.setMomentPrice(productDetail.getPrice());
+            billDetailRepository.save(newBillDetail);
+        }
+
+        // Step 4: Reduce the product quantity in inventory
+        int updatedQuantity = productDetail.getQuantity() - quantity;
+        if (updatedQuantity < 0) {
+            throw new IllegalArgumentException("Số lượng trong kho không đủ");
+        }
+        productDetail.setQuantity(updatedQuantity);
+        productDetailRepository.save(productDetail);
+
+        // Step 5: Recalculate the total product amount in the Bill
+        double totalProductAmount = bill.getBillDetail().stream()
+                .mapToDouble(detail -> detail.getMomentPrice() * detail.getQuantity())
+                .sum();
+
+        // Step 6: Apply the voucher discount if available
+        double discountAmount = 0.0;
+        if (bill.getDiscountCode() != null && bill.getDiscountCode().getDiscountAmount() != null) {
+            discountAmount = bill.getDiscountCode().getDiscountAmount();
+        }
+
+        // Step 7: Calculate the total amount after discount
+        double totalAmountAfterDiscount = totalProductAmount - discountAmount;
+
+        // Ensure the total amount doesn't go below zero
+        totalAmountAfterDiscount = Math.max(totalAmountAfterDiscount, 0);
+
+        // Step 8: Update the Bill's amount and save it
+        bill.setAmount(totalAmountAfterDiscount);
+        billRepository.save(bill);
     }
+
 
     @Override
     public void updateProductQuantity(Long billDetailId, int quantity) {

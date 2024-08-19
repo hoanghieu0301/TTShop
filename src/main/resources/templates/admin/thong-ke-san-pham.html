@@ -12,74 +12,7 @@
         </div>
         <h4>Thống kê sản phẩm</h4>
 
-        <div class="row">
-            <div class="mt-4 col-md-12">
-<!--                <h5>Theo khoảng thời gian</h5>-->
-                <div class="d-flex align-items-center mt-3">
-<!--                    <div class="mr-2">-->
-<!--                        <label class="form-label">Loại thời gian</label>-->
-<!--                        <select class="form-select" id="time-category">-->
-<!--                            <option value="1">Theo khoảng ngày</option>-->
-<!--                            <option value="2">Theo tháng</option>-->
-<!--                        </select>-->
-<!--                    </div>-->
 
-                    <div class="by-date mr-2">
-                        <label class="form-label">Ngày bắt đầu</label>
-                        <input type="date" name="" id="dateStart" class="form-control" >
-                    </div>
-
-                    <div class="by-date mr-2">
-                        <label class="form-label">Ngày kết thúc</label>
-                        <input type="date" name="" id="dateEnd" class="form-control">
-                    </div>
-
-                    <div class="by-month mr-2">
-                        <label class="form-label">Tháng bắt đầu</label>
-                        <input type="month" name="" id="monthStart" class="form-control" >
-                    </div>
-
-                    <div class="by-month mr-2">
-                        <label class="form-label">Tháng kết thúc</label>
-                        <input type="month" name="" id="monthEnd" class="form-control">
-                    </div>
-                    <div class="mt-4">
-                        <label class="form-label"></label>
-                        <button id="apply-statistic" class="btn btn-primary">Áp dụng</button>
-                    </div>
-                    <div class="mt-4">
-                        <div class="form-label"></div>
-                        <button type="button" id="export" class="btn bg-transparent">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 48 48"><g fill="none" stroke="green" stroke-linecap="round" stroke-width="4"><path stroke-linejoin="round" d="M8 15V6a2 2 0 0 1 2-2h28a2 2 0 0 1 2 2v36a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-9"/><path d="M31 15h3m-6 8h6m-6 8h6"/><path stroke-linejoin="round" d="M4 15h18v18H4zm6 6l6 6m0-6l-6 6"/></g></svg>
-
-                        </button>
-                    </div>
-                </div>
-<!--                <div class="product-chart-container">-->
-<!--                    <canvas id="product-chart"></canvas>-->
-<!--                </div>-->
-                <div class="mt-3">
-                    <table class="table" id="product-table">
-                        <thead class="thead-light">
-                        <tr>
-                        <tr>
-                            <th scope="col">Mã sản phẩm</th>
-                            <th scope="col">Tên sản phẩm</th>
-                            <th scope="col">Nhãn hiệu</th>
-                            <th scope="col">Loại</th>
-                            <th scope="col">Số lượng bán</th>
-                            <th scope="col">Số lượng đổi trả</th>
-                            <th scope="col">Doanh thu</th>
-                        </tr>
-                        </tr>
-                        </thead>
-                        <tbody id="product-list">
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
         <div class="row mt-4">
             <div class="top-product mt-6 col-md-6">
@@ -115,6 +48,74 @@
             </div>
             <div class="mt-6 col-md-6">
                 <canvas id="donut-best-seller"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="mt-4 col-md-12">
+                <!--                <h5>Theo khoảng thời gian</h5>-->
+                <div class="d-flex align-items-center mt-3">
+                    <!--                    <div class="mr-2">-->
+                    <!--                        <label class="form-label">Loại thời gian</label>-->
+                    <!--                        <select class="form-select" id="time-category">-->
+                    <!--                            <option value="1">Theo khoảng ngày</option>-->
+                    <!--                            <option value="2">Theo tháng</option>-->
+                    <!--                        </select>-->
+                    <!--                    </div>-->
+
+                    <div class="by-date mr-2">
+                        <label class="form-label">Ngày bắt đầu</label>
+                        <input type="date" name="" id="dateStart" class="form-control" >
+                    </div>
+
+                    <div class="by-date mr-2">
+                        <label class="form-label">Ngày kết thúc</label>
+                        <input type="date" name="" id="dateEnd" class="form-control">
+                    </div>
+
+                    <div class="by-month mr-2">
+                        <label class="form-label">Tháng bắt đầu</label>
+                        <input type="month" name="" id="monthStart" class="form-control" >
+                    </div>
+
+                    <div class="by-month mr-2">
+                        <label class="form-label">Tháng kết thúc</label>
+                        <input type="month" name="" id="monthEnd" class="form-control">
+                    </div>
+                    <div class="mt-4">
+                        <label class="form-label"></label>
+                        <button id="apply-statistic" class="btn btn-primary">Áp dụng</button>
+                    </div>
+                    <div class="mt-4">
+                        <div class="form-label"></div>
+                        <button type="button" id="export" class="btn bg-transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 48 48"><g fill="none" stroke="green" stroke-linecap="round" stroke-width="4"><path stroke-linejoin="round" d="M8 15V6a2 2 0 0 1 2-2h28a2 2 0 0 1 2 2v36a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-9"/><path d="M31 15h3m-6 8h6m-6 8h6"/><path stroke-linejoin="round" d="M4 15h18v18H4zm6 6l6 6m0-6l-6 6"/></g></svg>
+
+                        </button>
+                    </div>
+                </div>
+<!--                                <div class="product-chart-container">-->
+<!--                                    <canvas id="product-chart"></canvas>-->
+<!--                                </div>-->
+                <div class="mt-3">
+                    <table class="table" id="product-table">
+                        <thead class="thead-light">
+                        <tr>
+                        <tr>
+                            <th scope="col">Mã sản phẩm</th>
+                            <th scope="col">Tên sản phẩm</th>
+                            <th scope="col">Nhãn hiệu</th>
+                            <th scope="col">Loại</th>
+                            <th scope="col">Số lượng bán</th>
+                            <th scope="col">Số lượng đổi trả</th>
+                            <th scope="col">Doanh thu</th>
+                        </tr>
+                        </tr>
+                        </thead>
+                        <tbody id="product-list">
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/shim.min.js"></script>
