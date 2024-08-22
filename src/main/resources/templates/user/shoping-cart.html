@@ -88,6 +88,8 @@
                                     <th class="column-1">Màu</th>
                                     <th class="column-4">Số lượng</th>
                                     <th class="column-5">Tổng</th>
+                                    <!-- New column for delete button -->
+                                    <th class="column-6">Chức năng</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -122,9 +124,16 @@
                                         </div>
                                     </td>
                                     <td class="column-5 total-money"></td>
+                                    <!-- Delete button column -->
+                                    <td class="column-6">
+                                        <button class=" delete-product" type="button">
+                                            <i class="fa fa-times-circle-o"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
+
 
                         </div>
 
@@ -332,15 +341,12 @@
             var phuongXaSelected = '';
             var phuongThucVanChuyen = 53320;
             var shippingFee = 0;
-            const maxCashPaymentAmount = 10000000; // 10 million VND
             var addressSelected = {};
 
-            function getTypeOfDelivery(selectedType) {
-                phuongThucVanChuyen = selectedType.value;
-            }
+            $('.delete-product').on('click', function () {
+                var row = $(this).closest('.table-row');
+                var cartId = row.find('.cartId').val();
 
-            $('.how-itemcart1').on('click', function () {
-                var cartId = $(this).parent().parent().find('.cartId').val();
                 Swal.fire({
                     title: 'Xóa sản phẩm',
                     text: 'Bạn chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?',
@@ -355,11 +361,14 @@
                             type: 'POST',
                             url: `http://localhost:8080/api/deleteCart/${cartId}`,
                             success: function (data) {
-                                $(this).parent().parent().remove();
-                                calculateTotal();
+                                row.remove();  // Remove the row from the DOM
+                                calculateTotal();  // Recalculate the total
 
                                 var currentQua = parseInt(localStorage.getItem("cartQuantity"));
                                 $(".js-show-cart").attr("data-notify", currentQua - 1);
+                            },
+                            error: function (xhr, status, error) {
+                                swal("Lỗi", "Xảy ra lỗi trong quá trình xóa sản phẩm", "error");
                             }
                         });
                     }
@@ -837,68 +846,6 @@
                 }
             });
 
-            $('#nhanh').on('change', function (selected) {
-                var type = parseInt($('#nhanh').val());
-                console.log(type);
-                $.ajax({
-                    type: "GET",
-                    url: "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
-                    contentType: "application/json",
-                    headers: {
-                        "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
-                    },
-                    data: {
-                        shop_id: "190713",
-                        weight: 100,
-                        service_id: type,
-                        to_ward_code: phuongXaSelected,
-                        to_district_id: quanHuyenSelected
-                    },
-                    success: function (response) {
-                        var fee = response.data.total;
-                        var formattedMoney = parseFloat(fee).toLocaleString('en-US');
-                        console.log(formattedMoney);
-                        $('#fee').text(formattedMoney);
-                        shippingFee = fee; // Update shipping fee
-                        calculateTotal(); // Recalculate total
-                    },
-                    error: function (error) {
-                        console.error('Xảy ra lỗi: ', error);
-                    }
-                });
-            });
-
-            $('#hoaToc').on('change', function () {
-                var type = parseInt($('#hoaToc').val());
-                console.log(type);
-                $.ajax({
-                    type: "GET",
-                    url: "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
-                    contentType: "application/json",
-                    headers: {
-                        "Token": "68b8b44f-a88d-11ee-8bfa-8a2dda8ec551"
-                    },
-                    data: {
-                        shop_id: "190713",
-                        weight: 500,
-                        service_id: type,
-                        to_ward_code: phuongXaSelected,
-                        to_district_id: quanHuyenSelected
-                    },
-                    success: function (response) {
-                        var fee = response.data.total;
-                        var formattedMoney = parseFloat(fee).toLocaleString('en-US');
-                        console.log(formattedMoney);
-                        $('#fee').text(formattedMoney);
-                        shippingFee = fee; // Update shipping fee
-                        calculateTotal(); // Recalculate total
-                    },
-                    error: function (error) {
-                        console.error('Xảy ra lỗi: ', error);
-                    }
-                });
-            });
-
             function removeAnyNonDigit(value) {
                 return value.replace(/\D/g, '');
             }
@@ -934,9 +881,6 @@
             }
         });
     </script>
-
-
-
 
 </div>
 </body>

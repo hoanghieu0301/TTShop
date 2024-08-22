@@ -121,7 +121,7 @@ public class BillController {
 
     @GetMapping("/update-bill-status2/{billId}")
     public String updateBillStatus2(Model model, @PathVariable Long billId,
-                                   @RequestParam String trangThaiDonHang, RedirectAttributes redirectAttributes) {
+                                    @RequestParam String trangThaiDonHang, RedirectAttributes redirectAttributes) {
         try {
             Bill bill = billService.updateStatus(trangThaiDonHang, billId);
             redirectAttributes.addFlashAttribute("message", "Hóa đơn " + bill.getCode() + " cập nhật trạng thái thành công!");

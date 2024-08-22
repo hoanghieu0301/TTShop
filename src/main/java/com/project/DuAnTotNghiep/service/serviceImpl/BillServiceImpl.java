@@ -462,7 +462,7 @@ public class BillServiceImpl implements BillService {
         billDto.setCustomer(customer);
         Double total = Double.valueOf(0);
         for (BillDetail billDetail:
-             bill.getBillDetail()) {
+                bill.getBillDetail()) {
             total += billDetail.getQuantity() * billDetail.getMomentPrice();
         }
         billDto.setTotalAmount(total);
