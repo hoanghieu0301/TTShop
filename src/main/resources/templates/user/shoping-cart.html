@@ -343,6 +343,7 @@
             var shippingFee = 0;
             var addressSelected = {};
 
+            // Event listener for deleting a product
             $('.delete-product').on('click', function () {
                 var row = $(this).closest('.table-row');
                 var cartId = row.find('.cartId').val();
@@ -364,6 +365,10 @@
                                 row.remove();  // Remove the row from the DOM
                                 calculateTotal();  // Recalculate the total
 
+                                // Reset the voucher after product deletion
+                                resetVoucher();
+                                calculateTotal();
+
                                 var currentQua = parseInt(localStorage.getItem("cartQuantity"));
                                 $(".js-show-cart").attr("data-notify", currentQua - 1);
                             },
@@ -375,6 +380,7 @@
                 });
             });
 
+            // When an address is selected, update the shipping fee
             $(".shipping-choose").on('click', function () {
                 $(".shipping-choose").removeClass('active');
                 $(this).addClass('active');
@@ -386,7 +392,11 @@
                     quanHuyen: addressParts[2],
                     tinhThanhPho: addressParts[3]
                 };
-                updateShippingFee();
+
+                // Fetch the saved shipping fee for the selected address and update the UI
+                const shippingFee = $(this).data('shipping-fee');
+                $('#fee').text(formatNumber(shippingFee));  // Update the fee display
+                calculateTotal();
             });
 
             $("#add-address").on('click', function () {
@@ -394,6 +404,7 @@
                 $("#add-address").hide();
             });
 
+            // Save the address and the associated shipping fee
             $("#save-address-btn").on('click', function () {
 
                 const tinhThanhPho = $("#tinhThanhPho").val();
@@ -409,49 +420,57 @@
                     addressSelected.quanHuyen = $("#quanHuyen option:selected").text();
                     addressSelected.phuongXa = $("#phuongXa option:selected").text();
 
-                    var dataSend = {
-                        address: Object.entries(addressSelected)
-                            .filter(([key, value]) => value !== null && value !== '')
-                            .map(([key, value]) => value)
-                            .join(', ')
-                    };
+                    // Calculate the shipping fee for the new address
+                    updateShippingFee(function(fee) {
+                        var dataSend = {
+                            address: Object.entries(addressSelected)
+                                .filter(([key, value]) => value !== null && value !== '')
+                                .map(([key, value]) => value)
+                                .join(', '),
+                            shippingFee: fee  // Add the shipping fee to the address data
+                        };
 
-                    $.ajax({
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        url: 'api/public/addressShipping',
-                        data: JSON.stringify(dataSend),
-                        success: function (data) {
-                            const content = `<div class="shipping-choose">
-                                        <div id="shipping${data.id}">
-                                            <p>${data.address}</p>
-                                        </div>
-                                     </div>`;
-                            $('.address-list').append(content);
+                        $.ajax({
+                            type: 'POST',
+                            contentType: "application/json; charset=utf-8",
+                            url: 'api/public/addressShipping',
+                            data: JSON.stringify(dataSend),
+                            success: function (data) {
+                                const content = `<div class="shipping-choose" data-shipping-fee="${fee}">
+                                            <div id="shipping${data.id}">
+                                                <p>${data.address}</p>
+                                            </div>
+                                         </div>`;
+                                $('.address-list').append(content);
 
-                            $(".shipping-choose").on('click', function () {
-                                $(".shipping-choose").removeClass('active');
-                                $(this).addClass('active');
-                                const selectedAddress = $(this).find('p').text().trim();
-                                const addressParts = selectedAddress.split(', ');
-                                addressSelected = {
-                                    houseDeliveryAddress: addressParts[0],
-                                    phuongXa: addressParts[1],
-                                    quanHuyen: addressParts[2],
-                                    tinhThanhPho: addressParts[3]
-                                };
-                                updateShippingFee();
-                            });
-                        },
-                        error: function (xhr, status, error) {
-                            $('#loading-overlay').hide();
-                            swal("Lỗi", xhr.responseJSON.message, "error");
-                        }
+                                // Bind the click event to the newly added address
+                                $(".shipping-choose").on('click', function () {
+                                    $(".shipping-choose").removeClass('active');
+                                    $(this).addClass('active');
+                                    const selectedAddress = $(this).find('p').text().trim();
+                                    const addressParts = selectedAddress.split(', ');
+                                    addressSelected = {
+                                        houseDeliveryAddress: addressParts[0],
+                                        phuongXa: addressParts[1],
+                                        quanHuyen: addressParts[2],
+                                        tinhThanhPho: addressParts[3]
+                                    };
+
+                                    // Update the fee display based on the selected address
+                                    const shippingFee = $(this).data('shipping-fee');
+                                    $('#fee').text(formatNumber(shippingFee));
+                                    calculateTotal();
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                $('#loading-overlay').hide();
+                                swal("Lỗi", xhr.responseJSON.message, "error");
+                            }
+                        });
+
+                        $("#add-address").show();
+                        $("#address-select-group").hide();
                     });
-
-                    $("#add-address").show();
-                    $("#address-select-group").hide();
-                    updateShippingFee();
                 }
             });
 
@@ -544,7 +563,7 @@
                 $('#full-address').text(fullAddress);
             }
 
-            function updateShippingFee() {
+            function updateShippingFee(callback) {
                 phuongXaSelected = phuongXa.val();
                 $.ajax({
                     type: "GET",
@@ -564,6 +583,7 @@
                         shippingFee = response.data.total;
                         var formattedMoney = parseFloat(shippingFee).toLocaleString('en-US');
                         $('#fee').text(formattedMoney);
+                        if (callback) callback(shippingFee);  // Pass the fee to the callback function
                         calculateTotal(); // Ensure the total is updated whenever the shipping fee changes
                     },
                     error: function (error) {
@@ -572,6 +592,7 @@
                 });
             }
 
+            // Helper function to update subtotal based on quantity
             function updateSubtotal(row) {
                 var quantity = parseInt(row.find(".num-product").val());
                 var price = parseFloat(removeAnyNonDigit(row.find('.product-price').text()));
@@ -579,6 +600,7 @@
                 row.find('.total-money').text(formatNumber(subtotal) + ' VND');
             }
 
+            // Function to recalculate voucher price based on the selected voucher
             function calculateVoucherPrice() {
                 if (voucherChoosed) {
                     if (voucherChoosed.percentage) {
@@ -612,6 +634,7 @@
                 updateShippingFee(addressId);
             });
 
+            // Function to calculate total and check voucher validity
             function calculateTotal() {
                 var total = 0;
                 $('.table-row').each(function () {
@@ -628,6 +651,15 @@
                 var finalTotal = total + shippingFee - voucherDiscount;
 
                 $('#all-total').text(formatNumber(finalTotal) + ' VND');
+
+                // Check if the remaining total meets the voucher conditions
+                if (voucherChoosed && total >= voucherChoosed.minimumAmountInCart) {
+                    // If the total is still valid, apply the voucher
+                    calculateVoucherPrice(); // Recalculate voucher price
+                } else if (voucherChoosed && total < voucherChoosed.minimumAmountInCart) {
+                    // If the total is below the voucher's minimum requirement, reset the voucher
+                    resetVoucher();
+                }
             }
 
             $('#checkAll').change(function () {
@@ -635,13 +667,16 @@
                 calculateTotal();
             });
 
+            // Checkbox event handler
             $('.select-product').change(function () {
+                // Check if all products are selected/deselected and update 'checkAll' checkbox accordingly
                 if ($('.select-product:checked').length == $('.select-product').length) {
                     $('#checkAll').prop('checked', true);
                 } else {
                     $('#checkAll').prop('checked', false);
                 }
-                calculateTotal();
+
+                calculateTotal(); // Recalculate the total and check voucher validity
             });
 
             $('.table-row').each(function () {
@@ -650,6 +685,7 @@
 
             calculateTotal();
 
+            // Event handler for product quantity changes
             $(".num-product").on('change', function () {
                 if ($(this).val() > 20) {
                     Swal.fire({
@@ -659,14 +695,9 @@
                     $(this).val(20);
                 }
 
-                $('#selected-voucher').html('');
-                $('#selected-voucher').attr('data-selected', "");
-                voucherChoosed = null;
-                calculateVoucherPrice();
-
                 var row = $(this).closest('.table-row');
-                updateSubtotal(row);
-                calculateTotal();
+                updateSubtotal(row);   // Update the subtotal for the row
+                calculateTotal();      // Recalculate the total and check voucher validity
                 updateToServer(row, $(this).val());
             });
 
