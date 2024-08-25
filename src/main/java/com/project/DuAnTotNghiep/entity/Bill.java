@@ -7,6 +7,7 @@ import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,6 +39,10 @@ public class Bill implements Serializable {
     private String billingAddress;
 
     private Double amount;
+
+    private Double thucThu;
+
+    private Double phiShip;
 
     private Boolean returnStatus;
 

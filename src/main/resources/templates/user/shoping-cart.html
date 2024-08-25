@@ -406,7 +406,6 @@
 
             // Save the address and the associated shipping fee
             $("#save-address-btn").on('click', function () {
-
                 const tinhThanhPho = $("#tinhThanhPho").val();
                 const quanHuyen = $("#quanHuyen").val();
                 const phuongXa = $("#phuongXa").val();
@@ -437,11 +436,16 @@
                             data: JSON.stringify(dataSend),
                             success: function (data) {
                                 const content = `<div class="shipping-choose" data-shipping-fee="${fee}">
-                                            <div id="shipping${data.id}">
-                                                <p>${data.address}</p>
-                                            </div>
-                                         </div>`;
+                                                <div id="shipping${data.id}">
+                                                    <p>${data.address}</p>
+                                                </div>
+                                            </div>`;
+                                // Append the new address
                                 $('.address-list').append(content);
+
+                                // Automatically select the newly added address
+                                $(".shipping-choose").removeClass('active'); // Remove active class from others
+                                $(`#shipping${data.id}`).closest('.shipping-choose').addClass('active'); // Add active class to the new one
 
                                 // Bind the click event to the newly added address
                                 $(".shipping-choose").on('click', function () {
@@ -461,6 +465,10 @@
                                     $('#fee').text(formatNumber(shippingFee));
                                     calculateTotal();
                                 });
+
+                                // Trigger the shipping fee update and total calculation
+                                $('#fee').text(formatNumber(fee));
+                                calculateTotal();
                             },
                             error: function (xhr, status, error) {
                                 $('#loading-overlay').hide();
