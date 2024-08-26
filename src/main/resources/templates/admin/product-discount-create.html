@@ -392,6 +392,16 @@
                     }
                 }).showToast();
                 return
+            } else if($(this).val() < 1) {
+                $(this).val(1);
+                Toastify({
+                    text: "Không thể nhập bé hơn 1%",
+                    className: "error",
+                    style: {
+                        background: "red",
+                    }
+                }).showToast();
+                return
             }
         })
 
@@ -659,6 +669,16 @@
                     $(this).val(98);
                     Toastify({
                         text: "Không thể nhập quá 98%",
+                        className: "error",
+                        style: {
+                            background: "red",
+                        }
+                    }).showToast();
+                    return
+                } else if(parseFloat($(this).val()) < 1) {
+                    $(this).val(1);
+                    Toastify({
+                        text: "Không thể nhập bé hơn 1%",
                         className: "error",
                         style: {
                             background: "red",

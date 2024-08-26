@@ -611,18 +611,30 @@
             // Function to recalculate voucher price based on the selected voucher
             function calculateVoucherPrice() {
                 if (voucherChoosed) {
+                    var totalMoney = parseFloat(removeAnyNonDigit($('#sub-total').text()));
+
                     if (voucherChoosed.percentage) {
                         var voucherPriceLast;
-                        var totalMoney = removeAnyNonDigit($('#sub-total').text());
-                        var value = parseFloat(totalMoney) * voucherChoosed.percentage / 100;
-                        if (value > voucherChoosed.maximumAmount) {
-                            voucherPriceLast = voucherChoosed.maximumAmount;
-                        } else {
-                            voucherPriceLast = Math.round(value);
+                        var value = totalMoney * voucherChoosed.percentage / 100;
+
+                        // Check if the voucher value exceeds the total amount
+                        if (value > totalMoney) {
+                            swal("Voucher", "Giá trị voucher không được vượt quá tổng tiền", "error");
+                            resetVoucher();  // Reset the voucher if the value exceeds the total
+                            return;
                         }
+
+                        voucherPriceLast = (value > voucherChoosed.maximumAmount) ? voucherChoosed.maximumAmount : Math.round(value);
                         $("#voucher-pic").text(formatNumber(voucherPriceLast));
                     } else {
                         if (voucherChoosed.discountAmount) {
+                            // Check if the fixed discount exceeds the total amount
+                            if (voucherChoosed.discountAmount > totalMoney) {
+                                swal("Voucher", "Giá trị voucher không được vượt quá tổng tiền", "error");
+                                resetVoucher();  // Reset the voucher if the value exceeds the total
+                                return;
+                            }
+
                             $("#voucher-pic").text(formatNumber(voucherChoosed.discountAmount));
                         }
                     }
@@ -631,11 +643,15 @@
                 }
             }
 
+
             function resetVoucher() {
                 voucherChoosed = null;
                 $('#selected-voucher').html('');
                 $('#selected-voucher').attr('data-selected', "");
                 $("#voucher-pic").text('0');
+
+                // Trigger recalculation to remove voucher discount
+                calculateTotal();
             }
             $(document).on('click', '.shipping-choose', function() {
                 const addressId = $(this).attr('id').replace('shipping', '');
