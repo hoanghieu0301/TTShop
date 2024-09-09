@@ -16,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -38,13 +40,11 @@ public class CategoryController {
         }
 
         Sort sort = Sort.by(sortDirection, sortFieldName);
-
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         Page<Category> categoryPage = categoryService.getAllCategory(pageable);
 
         model.addAttribute("sortField", sortFieldName);
         model.addAttribute("sortDirection", sortDirection);
-
         model.addAttribute("items", categoryPage);
 
         return "admin/category";
@@ -58,14 +58,18 @@ public class CategoryController {
         return "admin/category-create";
     }
 
-
     @PostMapping("/category-save")
     public String addCategory(Model model, @Validated @ModelAttribute("Category") Category category, RedirectAttributes redirectAttributes) {
         try {
+            // Check if the category name already exists
+            if (categoryService.existsByName(category.getName())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên loại sản phẩm '" + category.getName() + "' đã tồn tại");
+                return "redirect:/admin/category-create";
+            }
+
             categoryService.createCategory(category);
             redirectAttributes.addFlashAttribute("successMessage", "Thêm loại sản phẩm mới thành công");
-
-        }catch (Exception e) {
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/category-create";
         }
@@ -74,13 +78,21 @@ public class CategoryController {
 
     @PostMapping("/category-update/{id}")
     public String update(@PathVariable("id") Long id,
-                         @Validated @ModelAttribute("Category") Category category, RedirectAttributes redirectAttributes) {
+                         @Validated @ModelAttribute("Category") Category category,
+                         RedirectAttributes redirectAttributes) {
+
+        // Check if the category name already exists, excluding the current category being updated
+        if (categoryService.existsByNameAndIdNot(category.getName(), id)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên loại sản phẩm '" + category.getName() + "' đã tồn tại");
+            return "redirect:/admin/category-detail/" + id;
+        }
+
         if (categoryService.existsById(id)) {
             try {
-                Category category1 = categoryService.updateCategory(category);
-                redirectAttributes.addFlashAttribute("successMessage", "Loại sản phẩm " + category1.getCode() + " được cập nhật thành công");
+                Category updatedCategory = categoryService.updateCategory(category);
+                redirectAttributes.addFlashAttribute("successMessage", "Loại sản phẩm " + updatedCategory.getCode() + " được cập nhật thành công");
 
-            }catch (Exception e) {
+            } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
                 return "redirect:/admin/category-detail/" + id;
             }
@@ -107,5 +119,23 @@ public class CategoryController {
     public String delete(@PathVariable("id") Long id, ModelMap modelMap){
         categoryService.delete(id);
         return "redirect:/admin/category-all";
+    }
+
+    // AJAX endpoint to check for duplicate category name
+    @GetMapping("/check-category-name")
+    @ResponseBody
+    public Map<String, Boolean> checkCategoryName(@RequestParam("name") String name,
+                                                  @RequestParam(value = "id", required = false) Long id) {
+        boolean exists;
+        if (id != null) {
+            // Check for duplicates excluding the current category being updated
+            exists = categoryService.existsByNameAndIdNot(name, id);
+        } else {
+            // Check for duplicates during create
+            exists = categoryService.existsByName(name);
+        }
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", !exists); // returns true if name is not duplicated
+        return response;
     }
 }

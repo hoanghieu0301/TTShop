@@ -14,6 +14,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -61,25 +63,38 @@ public class ColorController {
     @PostMapping("/color-save")
     public String addColor(RedirectAttributes redirectAttributes, @Validated @ModelAttribute("Color") Color color) {
         try {
+            // Check if the color name already exists
+            if (colorService.existsByName(color.getName())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên màu '" + color.getName() + "' đã tồn tại");
+                return "redirect:/admin/color-create";
+            }
             colorService.createColor(color);
             redirectAttributes.addFlashAttribute("successMessage", "Thêm màu mới thành công");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/color-create";
         }
         return "redirect:/admin/color-list";
     }
 
+
     @PostMapping("/color-update/{id}")
     public String update(@PathVariable("id") Long id,
-                         @Validated @ModelAttribute("Color") Color color, RedirectAttributes redirectAttributes) {
+                         @Validated @ModelAttribute("Color") Color color,
+                         RedirectAttributes redirectAttributes) {
+
+        // Check if the color name already exists, excluding the current color being updated
+        if (colorService.existsByNameAndIdNot(color.getName(), id)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên màu '" + color.getName() + "' đã tồn tại");
+            return "redirect:/admin/edit-color/" + id;
+        }
+
         if (colorService.existsById(id)) {
             try {
-                Color color1 = colorService.updateColor(color);
-                redirectAttributes.addFlashAttribute("successMessage", "Mã màu " + color1.getCode() + " cập nhật thành công");
+                Color updatedColor = colorService.updateColor(color);
+                redirectAttributes.addFlashAttribute("successMessage", "Mã màu " + updatedColor.getCode() + " cập nhật thành công");
 
-            }catch (Exception e) {
+            } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
                 return "redirect:/admin/edit-color/" + id;
             }
@@ -89,13 +104,14 @@ public class ColorController {
         }
     }
 
+
     @GetMapping("/edit-color/{id}")
     public String edit(@PathVariable("id") Long id, Model model) {
         Optional<Color> optionalColor = colorService.findById(id);
         if (optionalColor.isPresent()) {
             Color color = optionalColor.get();
             model.addAttribute("Color", color);
-            model.addAttribute("action", "/admin/color-update/" + color.getId());
+            model.addAttribute( "action", "/admin/color-update/" + color.getId());
             return "admin/color-create";
         } else {
             return "404";
@@ -106,5 +122,21 @@ public class ColorController {
     public String delete(@PathVariable("id") Long id, ModelMap modelMap){
         colorService.delete(id);
         return "redirect:/admin/color-list";
+    }
+    @GetMapping("/check-color-name")
+    @ResponseBody
+    public Map<String, Boolean> checkColorName(@RequestParam("name") String name,
+                                               @RequestParam(value = "id", required = false) Long id) {
+        boolean exists;
+        if (id != null) {
+            // Check for duplicates excluding the current color being updated
+            exists = colorService.existsByNameAndIdNot(name, id);
+        } else {
+            // Check for duplicates during create
+            exists = colorService.existsByName(name);
+        }
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", !exists); // returns true if name is not duplicated
+        return response;
     }
 }

@@ -46,4 +46,8 @@ public interface ProductService {
     ProductDto getByProductDetailId(Long detailId);
 
     List<ProductDto> getAllProducts();
+
+    boolean existsByName(String name);
+    boolean existsByCodeAndIdNot(String code, Long id);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

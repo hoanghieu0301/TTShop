@@ -44,13 +44,31 @@
                 formGroupSelector: '.form-group',
                 errorSelector: '.error',
                 rules: [
-                    Validator.isRequired('#code', 'Vui lòng nhập mã loại'),
-                    Validator.isRequired('#name', 'Vui lòng nhập tên loại'),
+                    Validator.isRequired('#code', 'Vui lòng nhập mã loại sản phẩm'),
+                    Validator.isRequired('#name', 'Vui lòng nhập tên loại sản phẩm'),
                     Validator.maxLength('#name', 30),
                     Validator.maxLength('#code', 20),
                 ]
             });
-        })
+
+            // AJAX validation for duplicate category name
+            $('#name').on('blur', function () {
+                var categoryName = $(this).val();
+                var categoryId = $('#category-form').find('[name="id"]').val(); // Get the current category ID
+                $.ajax({
+                    url: '/admin/check-category-name', // Endpoint to check for duplicate name
+                    type: 'GET',
+                    data: { name: categoryName, id: categoryId }, // Pass category name and ID to the server
+                    success: function (response) {
+                        if (!response.isValid) {
+                            $('#name').next('.error').text('Tên loại sản phẩm đã tồn tại');
+                        } else {
+                            $('#name').next('.error').text('');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </div>
 </body>

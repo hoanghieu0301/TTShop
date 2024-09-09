@@ -50,7 +50,25 @@
                     Validator.maxLength('#code', 20),
                 ]
             });
-        })
+
+            // AJAX validation for duplicate material name
+            $('#name').on('blur', function () {
+                var materialName = $(this).val();
+                var materialId = $('#material-form').find('[name="id"]').val(); // Get the current material ID
+                $.ajax({
+                    url: '/admin/check-material-name', // Endpoint to check for duplicate name
+                    type: 'GET',
+                    data: { name: materialName, id: materialId }, // Pass material name and ID to the server
+                    success: function (response) {
+                        if (!response.isValid) {
+                            $('#name').next('.error').text('Tên chất liệu đã tồn tại');
+                        } else {
+                            $('#name').next('.error').text('');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </div>
 </body>

@@ -593,12 +593,15 @@
             $("input[name='color']:checked").prop('checked', false); // Uncheck any selected colors
 
             if ($("#sizeSelect").val() == "") {
-                enableAllColorOptions()
+                enableAllColorOptions();
                 $("#colorSelect").hide();
                 $(".remaning-product").hide(); // Hide remaining product quantity
-                return
+                return;
             }
+
             $('#loading-overlay').show();
+
+            // Fetch available colors for the selected size
             await $.ajax({
                 type: 'GET',
                 dataType: "json",
@@ -609,6 +612,7 @@
                         return color.id;
                     });
 
+                    // Disable color options that are not available
                     for (var i = 0; i < initiallyAvailableColors.length; i++) {
                         if (!availableColors.includes(initiallyAvailableColors[i])) {
                             disableColorOption(initiallyAvailableColors[i]);
@@ -630,6 +634,10 @@
                     $(".remaning-product").hide(); // Hide remaining product quantity
                 }
             });
+
+            // Call loadPrice to update price and stock status after selecting size
+            await loadPrice(); // Load price and stock status for the selected size
+
             $('#loading-overlay').hide();
         }
 
@@ -707,18 +715,23 @@
                 url: `/productDetails/${productId}/product`,
                 success: function (data) {
                     const productDetail = data.find(item => item.size.id == $("#sizeSelect").val() && item.color.id == $("input[name='color']:checked").val());
-                    loadRemainingQuantity(productDetail.quantity);
-                    if(!productDetail.discountedPrice) {
-                        $("#price_product").text(formatNumber(parseFloat(productDetail.price)) + ' đ');
-                    } else {
-                        const oldPrice = formatNumber(parseFloat(productDetail.price));
-                        const discountedPrice = formatNumber(parseFloat(productDetail.discountedPrice));
-                        $("#price_product").html(`
+
+                    if (productDetail) {
+                        loadRemainingQuantity(productDetail.quantity);
+
+                        if (!productDetail.discountedPrice) {
+                            $("#price_product").text(formatNumber(parseFloat(productDetail.price)) + ' đ');
+                        } else {
+                            const oldPrice = formatNumber(parseFloat(productDetail.price));
+                            const discountedPrice = formatNumber(parseFloat(productDetail.discountedPrice));
+                            $("#price_product").html(`
                         <span style="font-size: 12px; text-decoration: line-through">${oldPrice} đ</span>
                         <span class="mtext-106 cl2" id="price_product">${discountedPrice} đ</span>
-                        `);
+                    `);
+                        }
+
+                        $("#productDetailId").val(productDetail.id);
                     }
-                    $("#productDetailId").val(productDetail.id);
                 }
             });
         }
@@ -727,11 +740,15 @@
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        function loadRemainingQuantity(value) {
-            if(value == 0) {
-                $('.js-name-detail').append('<span style="color:red; border: 1px solid #ddd; font-size: 12px; margin-left: 8px">Hết hàng</span>');
+        function loadRemainingQuantity(quantity) {
+            if (quantity == 0) {
+                $('.js-name-detail span.out-of-stock').remove(); // Remove any existing "Hết hàng" label
+                $('.js-name-detail').append('<span class="out-of-stock" style="color:red; border: 1px solid #ddd; font-size: 12px; margin-left: 8px">Hết hàng</span>');
+            } else {
+                $('.js-name-detail span.out-of-stock').remove(); // Remove "Hết hàng" label if product is in stock
             }
-            $(".remaning-product").html(`Còn lại <span id="remaining-quantity" data-quantity="${value}">${value}</span> sản phẩm`);
+
+            $(".remaning-product").html(`Còn lại <span id="remaining-quantity" data-quantity="${quantity}">${quantity}</span> sản phẩm`);
             $(".remaning-product").show(); // Show remaining product quantity
         }
 
@@ -822,6 +839,7 @@
             margin-right: 10px;
         }
     </style>
+</div>
 </div>
 </body>
 </html>

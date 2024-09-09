@@ -16,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -38,13 +40,11 @@ public class SizeController {
         }
 
         Sort sort = Sort.by(sortDirection, sortFieldName);
-
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         Page<Size> sizePage = sizeService.getAllSize(pageable);
 
         model.addAttribute("sortField", sortFieldName);
         model.addAttribute("sortDirection", sortDirection);
-
         model.addAttribute("items", sizePage);
 
         return "admin/size";
@@ -58,14 +58,18 @@ public class SizeController {
         return "admin/size-create";
     }
 
-
     @PostMapping("/size-save")
     public String addSize(Model model, @Validated @ModelAttribute("Size") Size size, RedirectAttributes redirectAttributes) {
         try {
-            Size sizeNew = sizeService.createSize(size);
+            // Check if the size name already exists
+            if (sizeService.existsByName(size.getName())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên kích cỡ '" + size.getName() + "' đã tồn tại");
+                return "redirect:/admin/size-create";
+            }
+
+            sizeService.createSize(size);
             redirectAttributes.addFlashAttribute("successMessage", "Thêm kích cỡ mới thành công");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/size-create";
         }
@@ -74,14 +78,21 @@ public class SizeController {
 
     @PostMapping("/size-update/{id}")
     public String update(@PathVariable("id") Long id,
-                         @Validated @ModelAttribute("Brand") Size size, RedirectAttributes redirectAttributes) {
+                         @Validated @ModelAttribute("Size") Size size, RedirectAttributes redirectAttributes) {
+
+        // Check if the size name already exists, excluding the current size being updated
+        if (sizeService.existsByNameAndIdNot(size.getName(), id)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên kích cỡ '" + size.getName() + "' đã tồn tại");
+            return "redirect:/admin/size-detail/" + id;
+        }
+
         Optional<Size> optional = sizeService.findById(id);
         if (optional.isPresent()) {
             try {
                 sizeService.updateSize(size);
                 redirectAttributes.addFlashAttribute("successMessage", "Kích cỡ được cập nhật thành công");
 
-            }catch (Exception e) {
+            } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
                 return "redirect:/admin/size-detail/" + id;
             }
@@ -100,14 +111,33 @@ public class SizeController {
             model.addAttribute("action", "/admin/size-update/" + size.getId());
             return "admin/size-create";
         } else {
-            return null;
+            return "404";
         }
     }
 
     @GetMapping("/size-delete/{id}")
-    public String delete(@PathVariable("id") Long id, Model model){
+    public String delete(@PathVariable("id") Long id, Model model) {
         sizeService.delete(id);
         model.addAttribute("successMessage", "Xóa kích cỡ thành công");
         return "redirect:/admin/size-all";
     }
+
+    // AJAX endpoint to check for duplicate size name
+    @GetMapping("/check-size-name")
+    @ResponseBody
+    public Map<String, Boolean> checkSizeName(@RequestParam("name") String name,
+                                              @RequestParam(value = "id", required = false) Long id) {
+        boolean exists;
+        if (id != null) {
+            // Check for duplicates excluding the current size being updated
+            exists = sizeService.existsByNameAndIdNot(name, id);
+        } else {
+            // Check for duplicates during create
+            exists = sizeService.existsByName(name);
+        }
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", !exists); // returns true if name is not duplicated
+        return response;
+    }
 }
+

@@ -9,10 +9,8 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!--    <script th:src="@{/js/sweetalert.min.js}"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.js"></script>
-
     <style>
         * {
             font-family: Arial, Helvetica, sans-serif;
@@ -28,7 +26,6 @@
             z-index: 9999;
             display: none;
         }
-
         #overlay {
             position: fixed;
             top: 0;
@@ -36,11 +33,9 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-
             z-index: 2;
             display: none;
         }
-
         .loading-spinner {
             position: absolute;
             top: 50%;
@@ -53,60 +48,14 @@
             border-radius: 50%;
             animation: spin 1s ease-in-out infinite;
         }
-
         @keyframes spin {
             0% {
                 transform: translate(-50%, -50%) rotate(0deg);
             }
-
             100% {
                 transform: translate(-50%, -50%) rotate(360deg);
             }
         }
-
-
-        .tab-container {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Styling for individual tabs */
-        .tab {
-            padding: 10px 20px;
-            background-color: #11398a;
-            border: 1px solid #ccc;
-            margin-right: 5px;
-            margin-left: 10px;
-            position: relative;
-            color: #fff;
-        }
-
-        .tab.active {
-            background-color: #fff;
-            color: #000;
-        }
-
-        .tab-list {
-            display: flex;
-        }
-
-        /* Styling for the close button on each tab */
-        .close-tab-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            cursor: pointer;
-        }
-
-        /* Styling for the plus button to add new tabs */
-        .add-tab-btn {
-            background: none;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-        }
-
     </style>
 </head>
 <body>
@@ -271,30 +220,6 @@
                     </svg>
                 </a>
             </div>
-<!--            <div class="ml-4 mr-2 cursor-pointer hover:bg-black/[.54] rounded-lg" id="enable-camera-button">-->
-<!--                <span>-->
-<!--                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 256 256">-->
-<!--                        <path fill="white"-->
-<!--                              d="M232 48v40a8 8 0 0 1-16 0V56h-32a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8ZM72 200H40v-32a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16Zm152-40a8 8 0 0 0-8 8v32h-32a8 8 0 0 0 0 16h40a8 8 0 0 0 8-8v-40a8 8 0 0 0-8-8ZM32 96a8 8 0 0 0 8-8V56h32a8 8 0 0 0 0-16H32a8 8 0 0 0-8 8v40a8 8 0 0 0 8 8Zm48-16a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm104 88V88a8 8 0 0 0-16 0v80a8 8 0 0 0 16 0Zm-40-88a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm-32 0a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Z" />-->
-<!--                    </svg>-->
-<!--                </span>-->
-<!--            </div>-->
-<!--            <div class="tab-container" data-tab-number="1">-->
-<!--                <div class="tab-list">-->
-<!--                    <div data-tab-number="1" class="tab active font-bold relative cursor-pointer">-->
-
-<!--                        Đổi trả <span>1</span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <span class="add-tab-btn h-6 w-6 block hover:bg-gray-700 rounded-full flex justify-center items-center">-->
-<!--                    <div>-->
-<!--                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">-->
-<!--                            <path fill="white"-->
-<!--                                  d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2v-5h5v-2h-5v-5h-2z" />-->
-<!--                        </svg>-->
-<!--                    </div>-->
-<!--                </span>-->
-<!--            </div>-->
         </div>
     </nav>
     <div class="grid grid-cols-6 gaps-2 bg-slate-50">
@@ -306,9 +231,6 @@
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <!--                            <th scope="col" class="px-2 py-3">-->
-                            <!--                                STT-->
-                            <!--                            </th>-->
                             <th scope="col" class="px-3 py-3">
                                 Ảnh
                             </th>
@@ -346,47 +268,12 @@
                         <div class="mr-2">
                             <span class="text-white font-bold">Danh sách hàng đổi</span>
                         </div>
-<!--                        <div class="search-container w- mr-2">-->
-<!--                            <div class="relative">-->
-<!--                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">-->
-<!--                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"-->
-<!--                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">-->
-<!--                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
-<!--                                              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />-->
-<!--                                    </svg>-->
-<!--                                </div>-->
-<!--                                <input-->
-<!--                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm outline-none rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"-->
-<!--                                        type="search" placeholder="Thêm hàng đổi" aria-label="Search" id="search-product"-->
-<!--                                        style="width: 500px">-->
-<!--                                <div-->
-<!--                                        class="list-search-product hidden bg-white mt-2 rounded-md absolute top-9 px-2 py-2 left-0 z-50 shadow-lg right-0 max-h-80 overflow-y-scroll">-->
-
-<!--                                </div>-->
-<!--                                <div class="no-search-found absolute px-2 py-2 hidden bg-white mt-2 rounded-md absolute top-9 px-2 py-2 left-0 z-50 shadow-lg right-0">-->
-<!--                                    <span class="text-gray-400 text italic">Không thấy sản phẩm nào</span>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        <div class="ml-4 mr-2 cursor-pointer hover:bg-black/[.54] rounded-lg" id="enable-camera-button">-->
-<!--                            <span>-->
-<!--                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 256 256">-->
-<!--                                    <path fill="white"-->
-<!--                                          d="M232 48v40a8 8 0 0 1-16 0V56h-32a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8ZM72 200H40v-32a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16Zm152-40a8 8 0 0 0-8 8v32h-32a8 8 0 0 0 0 16h40a8 8 0 0 0 8-8v-40a8 8 0 0 0-8-8ZM32 96a8 8 0 0 0 8-8V56h32a8 8 0 0 0 0-16H32a8 8 0 0 0-8 8v40a8 8 0 0 0 8 8Zm48-16a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm104 88V88a8 8 0 0 0-16 0v80a8 8 0 0 0 16 0Zm-40-88a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm-32 0a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Z" />-->
-<!--                                </svg>-->
-<!--                            </span>-->
-<!--                        </div>-->
-
                     </div>
                 </nav>
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <!--                            <th scope="col" class="px-2 py-3">-->
-                            <!--                                STT-->
-                            <!--                            </th>-->
                             <th scope="col" class="px-3 py-3">
                                 Ảnh
                             </th>
@@ -480,10 +367,6 @@
                 <div class="exchange-payment-area mt-2">
                     <div class="flex justify-between">
                         <span class="text-fuchsia-500 font-bold text-xl">Đổi hàng</span>
-<!--                        <div class="flex items-center mb-4">-->
-<!--                            <input id="shipping" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">-->
-<!--                            <label for="shipping" class="ms-2 text-sm text-blue-700 dark:text-blue-300 font-bold">Giao hàng</label>-->
-<!--                        </div>-->
                     </div>
                     <div class="col">
                         <h5 class="">Tổng tiền hàng đổi: </h5>
@@ -523,8 +406,6 @@
                 <div class="payment-method-group mt-4">
                     <input type="radio" th:value="1" name="paymentMethod" id="payment-offline" checked> <label
                         class="mr-2">Tiền mặt</label>
-                    <!-- <input type="radio" th:value="4" name="paymentMethod" id="payment-card"> <label
-                    class="mr-2">Thẻ</label> -->
                     <input type="radio" value="3" name="paymentMethod" id="payment-online"> <label class="mr-2">Chuyển khoản</label>
                 </div>
 
@@ -534,7 +415,6 @@
                 </button>
             </div>
         </div>
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
                 th:inline="javascript"></script>
         <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -542,8 +422,6 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
         <script th:inline="javascript">
             $(document).ready(() => {
-
-
                 updateTime()
                 function updateTime() {
                     var currentDate = new Date();
@@ -574,7 +452,6 @@
                 var billList = []
                 handleSearchProduct()
                 hideExchange()
-                // Lấy danh sách sản phẩm hóa đơn cũ
                 $('#overlay').show()
 
                 $('#select-other-bill-btn').on('click', function () {
@@ -663,7 +540,6 @@
                 }
 
                 function formatLocalDateTime(datetime) {
-                    // Create a Date object
                     const date = new Date(datetime);
 
                     const formattedDate = `${(date.getDate() + 1).toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear().toString().slice(2)} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
@@ -817,7 +693,6 @@
                             return
                         }
 
-
                         if($(this).hasClass('selected font-bold border border-2 border-blue-600 bg-blue-50')) {
                             $(this).removeClass('selected font-bold border border-2 border-blue-600 bg-blue-50')
                         }else {
@@ -834,8 +709,6 @@
                             $(this).addClass('selected font-bold border border-2 border-blue-600 bg-blue-50')
 
                         }
-
-
                         if($('.selected').length == 0) {
                             $('#choose-exchange-product-list-btn').prop('disabled', true)
                         }else {
@@ -857,8 +730,6 @@
                             if(!detailSelectedId.includes(detailId)) {
                                 detailSelectedId.push(detailId)
                             }else {
-                                // const selectedItem = $(`.product-selected-item[data-product-detail-id='${detailId}']`).find('.exchange-quantity')
-                                // selectedItem.val(parseInt(selectedItem.val()) + 1)
                             }
                             $('#overlay').hide()
                             $('#product-exchange-modal').addClass('hidden')
@@ -926,7 +797,6 @@
                             totalB += parseInt(($(item).find('.return-quantity').val()))
                         })
 
-
                         if(total > totalB) {
                             // Revert the input value to maintain the constraint
                             var oldValue = $(this).data('oldValue') || 1;
@@ -943,7 +813,6 @@
                         calculateLastReturnExchange()
                     })
 
-
                     $('.remove-selected-item').on('click', function () {
                         const deleteSelectedItem = $(this).closest('.product-selected-item');
                         const detailId = deleteSelectedItem.attr('data-product-detail-id');
@@ -956,8 +825,6 @@
                         }
 
                     })
-
-
                     calculateAllPriceExchange()
                     calculateLastReturnExchange()
                 }
@@ -980,13 +847,11 @@
                         $(`.product-${productId} .exchange-quantity`).each((index, item) => {
                             total += parseInt($(item).val())
                         })
-
                         //Tính tổng số lượng trả
                         var totalB = 0;
                         $(`.product-select-item-${productId}`).each((index, item) => {
                             totalB += parseInt(($(item).find('.return-quantity').val()))
                         })
-
                         // Nếu tổng sl đổi lớn hơn tổng số lượng trả
                         if( totalB < total) {
                             $(`.product-${productId}`).remove()
@@ -1184,10 +1049,7 @@
                     $('.all-price').text(0)
                     $('#money-change').text(0)
                 }
-
-            //    ============================== XỬ LÝ THANH TOÁN ===============================
-
-
+            // XỬ LÝ THANH TOÁN
                 $('#submitBtn').on('click', handleSubmit);
 
                 async function handleSubmit() {
@@ -1207,13 +1069,11 @@
                         if($(item).find('.return-quantity').val() > 0) {
                             checkQuantity = true
                         }
-
                         const refund = {
                             billDetailId: $(item).attr('data-bill-detail-id'),
 
                             quantityRefund: $(item).find('.return-quantity').val()
                         }
-
                         dataSend.refundDtos.push(refund)
                     })
 
@@ -1225,7 +1085,6 @@
                         });
                         return;
                     }
-
                     //Lặp các hàng đổi
                     if (isExchange) {
                         $('.product-selected-item').each((index, item) => {
@@ -1241,7 +1100,6 @@
 
                     await handleCallApi(dataSend)
                 }
-
                 async function handleCallApi(dataSend) {
                     $('#loading-overlay').show()
                     await $.ajax({
@@ -1252,22 +1110,6 @@
                         contentType: "application/json; charset=utf-8",
                         success: function (data) {
                             $('#loading-overlay').hide()
-                            // // Create a new iframe element dynamically
-                            // var iframe = document.createElement('iframe');
-                            // iframe.style.display = 'none'; // Hide the iframe
-                            // document.body.appendChild(iframe);
-                            //
-                            // // Set the iframe source to the specified URL
-                            // iframe.src = `/admin/bill-return-detail-generate/${data.id}`;
-                            //
-                            // // Wait for the iframe to load and then print
-                            // iframe.onload = function() {
-                            //     setTimeout(function() {
-                            //         iframe.contentWindow.print();
-                            //         // Remove the iframe from the DOM after printing
-                            //         document.body.removeChild(iframe);
-                            //     }, 500); // Adjust the delay as needed
-                            // };
 
                             resetAll()
 

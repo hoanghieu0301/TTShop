@@ -25,4 +25,6 @@ public interface CategoryService {
     List<Category> getAll();
 
     CategoryDto createCategoryApi(CategoryDto categoryDto);
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
-<!--    <script th:src="@{/js/sweetalert.min.js}"></script>-->
+    <!--    <script th:src="@{/js/sweetalert.min.js}"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.js"></script>
 
@@ -157,14 +157,14 @@
     <video id="qr-video" width="300" height="200" autoplay class="mb-4"></video>
     <canvas id="qr-canvas" width="300" height="200" style="display: none"></canvas>
     <button type="button" class="close-modal-scan absolute top-1 right-1 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        data-modal-hide="crypto-modal">
-                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                         fill="none" viewBox="0 0 14 14">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                              stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                    </svg>
-                                    <span class="sr-only">Close modal</span>
-                                </button>
+            data-modal-hide="crypto-modal">
+        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+        </svg>
+        <span class="sr-only">Close modal</span>
+    </button>
 </div>
 
 <div class="qr-payment-container z-10 bg-white p-x-20 pt-20 pb-10 rounded-lg shadow-md absolute left-1/4 top-1/4 -translate-y-1/4 hidden">
@@ -210,14 +210,26 @@
                 </div>
             </div>
         </div>
+        <!-- Icon Admin -->
         <div mr-2>
-            <a class="text-white cursor-pointer hover:bg-black/[.54] rounded-lg" th:href="@{/admin}">
+            <a id="admin-link" class="text-white cursor-pointer hover:bg-black/[.54] rounded-lg" href="/admin">
                 <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                      viewBox="0 0 20 20">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
                 </svg>
             </a>
+        </div>
+
+        <!-- Modal Xác Nhận -->
+        <div id="confirmation-modal-1" class="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 hidden">
+            <div class="bg-white p-4 rounded shadow-lg w-1/3">
+                <p id="modal-message-1" class="text-center mb-4 font-bold">Bạn có chắc chắn muốn đóng toàn bộ các tab này không?</p>
+                <div class="flex justify-center space-x-4">
+                    <button id="confirm-close-1" class="bg-red-500 text-white px-4 py-2 rounded">Xác nhận</button>
+                    <button id="cancel-close-1" class="bg-gray-300 text-black px-4 py-2 rounded">Hủy</button>
+                </div>
+            </div>
         </div>
         <div class="ml-4 mr-2 cursor-pointer hover:bg-black/[.54] rounded-lg" id="enable-camera-button">
                 <span>
@@ -241,7 +253,17 @@
                                   d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2v-5h5v-2h-5v-5h-2z" />
                         </svg>
                     </div>
-                </span>
+            </span>
+            <!-- Modal Structure -->
+            <div id="confirmation-modal" class="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 hidden">
+                <div class="bg-white p-4 rounded shadow-lg w-1/3">
+                    <p id="modal-message" class="text-center mb-4 font-bold">Bạn có chắc chắn muốn đóng tab này không?</p>
+                    <div class="flex justify-center space-x-4">
+                        <button id="confirm-close" class="bg-red-500 text-white px-4 py-2 rounded">Xác nhận</button>
+                        <button id="cancel-close" class="bg-gray-300 text-black px-4 py-2 rounded">Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
@@ -435,7 +457,7 @@
                                 <div class="flex items-center justify-center rounded w-14 bg-blue-100 h-20 mr-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21z"/><path fill="currentColor" d="M11.38 17.41c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.63.58A2.04 2.04 0 0 0 11.21 0H5C3.9 0 3 .9 3 2v6.21c0 .53.21 1.04.59 1.41l7.79 7.79zM7.25 3a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5z"/></svg>
                                 </div>
-<!--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M20.04 8.71V4h-4.7L12 .69L8.71 4H4v4.71L.69 12L4 15.34v4.7h4.71L12 23.35l3.34-3.31h4.7v-4.7L23.35 12l-3.31-3.29M8.83 7.05c.98 0 1.77.79 1.77 1.78a1.77 1.77 0 0 1-1.77 1.77c-.99 0-1.78-.79-1.78-1.77c0-.99.79-1.78 1.78-1.78M15.22 17c-.98 0-1.77-.8-1.77-1.78a1.77 1.77 0 0 1 1.77-1.77c.98 0 1.78.79 1.78 1.77A1.78 1.78 0 0 1 15.22 17m-6.72.03L7 15.53L15.53 7l1.5 1.5l-8.53 8.53Z"/></svg>-->
+                                <!--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M20.04 8.71V4h-4.7L12 .69L8.71 4H4v4.71L.69 12L4 15.34v4.7h4.71L12 23.35l3.34-3.31h4.7v-4.7L23.35 12l-3.31-3.29M8.83 7.05c.98 0 1.77.79 1.77 1.78a1.77 1.77 0 0 1-1.77 1.77c-.99 0-1.78-.79-1.78-1.77c0-.99.79-1.78 1.78-1.78M15.22 17c-.98 0-1.77-.8-1.77-1.78a1.77 1.77 0 0 1 1.77-1.77c.98 0 1.78.79 1.78 1.77A1.78 1.78 0 0 1 15.22 17m-6.72.03L7 15.53L15.53 7l1.5 1.5l-8.53 8.53Z"/></svg>-->
 
                                 <div class="w-full">
                                     <p class="font-bold">Giảm <span>10K</span></p>
@@ -613,8 +635,8 @@
                     $('table').append(body)
 
                     var selectedCustomer = $(`<div class="selected-customer mt-2 border border-blue-400 rounded-md hidden">
-<span class="font-bold italic text-gray-500">--Khách lẻ--</span>
-</div>`)
+                    <span class="font-bold italic text-gray-500">--Khách lẻ--</span>
+                    </div>`)
                     $('.search-customer-container').append(selectedCustomer)
                     // Bắt sự kiện click trên tab mới
                     newTab.on('click', function () {
@@ -638,31 +660,73 @@
                         calculateLastPrice()
                     });
 
-                    // Bắt sự kiện click nút "Xóa tab"
                     $('.remove-tab-btn').on('click', function (e) {
-                        e.stopPropagation()
-                        // // Lấy số thứ tự của tab cần xóa
-                        var tabNumber = parseInt($(this).closest('.tab').attr('data-tab-number'));
+                        e.stopPropagation();
 
-                        // Xóa tab
-                        $(this).parent().remove();
-                        var element = $(`.product-select-body[data-tab-number = '${tabNumber}'`);
-                        // var previousElement = element.prev('.product-select-body');
-                        // previousElement.addClass('active')
-                        // previousElement.removeClass('hidden')
-                        if(element.hasClass('active')) {
-                            $(`.tab[data-tab-number='${tabNumber-1}']`).addClass('active')
-                            $(`.product-select-body[data-tab-number='${tabNumber-1}']`).addClass('active')
-                            $(`.product-select-body[data-tab-number='${tabNumber-1}']`).removeClass('hidden')
-                            calculateAllPrice()
-                            calculateLastPrice()
+                        // Get the tab number and check if it contains products
+                        var tabNumber = parseInt($(this).closest('.tab').attr('data-tab-number'));
+                        var element = $(`.product-select-body[data-tab-number='${tabNumber}']`);
+                        var hasProducts = element.children().length > 0;
+
+                        // Update modal message based on the presence of products
+                        if (hasProducts) {
+                            $('#modal-message').text('Tab này có sản phẩm bên trong. Bạn có chắc chắn muốn đóng nó không?');
+                        } else {
+                            $('#modal-message').text('Bạn có chắc chắn muốn đóng tab này không?');
                         }
-                        element.remove()
-                    })
+
+                        // Show the modal
+                        $('#confirmation-modal').removeClass('hidden');
+
+                        // Handle confirm button click
+                        $('#confirm-close').off('click').on('click', function () {
+                            // Proceed with closing the tab
+                            if (element.hasClass('active')) {
+                                $(`.tab[data-tab-number='${tabNumber-1}']`).addClass('active');
+                                $(`.product-select-body[data-tab-number='${tabNumber-1}']`).addClass('active').removeClass('hidden');
+                                calculateAllPrice();
+                                calculateLastPrice();
+                            }
+                            element.remove();
+                            $(`.tab[data-tab-number='${tabNumber}']`).remove();
+                            $('#confirmation-modal').addClass('hidden'); // Hide the modal
+                        });
+
+                        // Handle cancel button click
+                        $('#cancel-close').off('click').on('click', function () {
+                            $('#confirmation-modal').addClass('hidden'); // Just hide the modal
+                        });
+                    });
+
                     // // Cập nhật số thứ tự của tab cuối cùng
                     // $('.tab-container').attr('data-tab-number', lastTabNumber + 1);
                 });
 
+                // Xử lý sự kiện khi nhấp vào icon admin
+                $('#admin-link').on('click', function (e) {
+                    e.preventDefault(); // Ngăn hành động mặc định của liên kết
+
+                    // Cập nhật thông báo trong modal
+                    $('#modal-message-1').text('Bạn có chắc chắn muốn đóng toàn bộ các tab này không?');
+
+                    // Hiển thị modal
+                    $('#confirmation-modal-1').removeClass('hidden');
+
+                    // Xử lý sự kiện nút "Xác nhận" trong modal
+                    $('#confirm-close-1').off('click').on('click', function () {
+                        // Đóng tất cả các tab
+                        $('.tab').remove(); // Xóa tất cả các tab
+                        $('.product-select-body').remove(); // Xóa tất cả phần nội dung sản phẩm
+                        $('.selected-customer').remove(); // Xóa tất cả phần khách hàng đã chọn
+                        $('#confirmation-modal').addClass('hidden'); // Ẩn modal
+                        window.location.href = '/admin'; // Điều hướng đến trang admin
+                    });
+
+                    // Xử lý sự kiện nút "Hủy" trong modal
+                    $('#cancel-close-1').off('click').on('click', function () {
+                        $('#confirmation-modal-1').addClass('hidden'); // Ẩn modal
+                    });
+                });
 
 
 
@@ -770,7 +834,6 @@
                     if (!canAdd) {
                         return;
                     }
-
 
                     // productSelecting.push(productDetailSe)
                     const productPrice = formatNumber(productDetailSe.price)
@@ -1520,7 +1583,7 @@
                     // Xử lý khi pt thanh toán là chuyển khoản
                     if (paymentMethodId == 3) {
                         $(".qr-payment-container").removeClass('hidden');
-                        $(".qr-payment-container").find('img').attr("src", `https://img.vietqr.io/image/TCB-9999999999-compact2.jpg?amount=${pay.requireMoney}&addInfo=Thanh%20%20toan%20don%20hang&accountName=HOANG%20XUAN%20HIEU`);
+                        $(".qr-payment-container").find('img').attr("src", `https://img.vietqr.io/image/TCB-19037422831012-compact2.jpg?amount=${pay.requireMoney}&addInfo=Thanh%20%20toan%20don%20hang&accountName=Nguyen%20Ngoc%20Sang`);
                         dataSendIfChuyenKhoan = dataSend;
                     } else {
                         // Execute the AJAX request directly for other payment methods

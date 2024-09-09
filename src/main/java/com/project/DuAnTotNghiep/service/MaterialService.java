@@ -23,4 +23,6 @@ public interface MaterialService {
     List<Material> getAll();
 
     MaterialDto createMaterialApi(MaterialDto materialDto);
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

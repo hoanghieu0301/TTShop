@@ -107,4 +107,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "GROUP BY\n" +
             "    p.id, p.code, p.name, brand.name, cat.name;", nativeQuery = true)
     List<ProductStatistic> getStatisticProduct(String fromDate, String toDate);
+
+    boolean existsByName(String name);
+    boolean existsByCodeAndIdNot(String code, Long id);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

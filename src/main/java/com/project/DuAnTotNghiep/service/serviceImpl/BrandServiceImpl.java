@@ -21,6 +21,15 @@ public class BrandServiceImpl implements BrandService {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Override
+    public boolean existsByName(String name) {
+        return brandRepository.existsByName(name);
+    }
+
+    @Override
+    public boolean existsByNameAndIdNot(String name, Long id) {
+        return brandRepository.existsByNameAndIdNot(name, id);
+    }
 
     @Override
     public Page<Brand> getAllBrand(Pageable pageable) {

@@ -23,4 +23,6 @@ public interface ColorRepo extends JpaRepository<Color,Long> {
 
     List<Color> findAllByDeleteFlagFalse();
     Page<Color> findAllByDeleteFlagFalse(Pageable pageable);
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

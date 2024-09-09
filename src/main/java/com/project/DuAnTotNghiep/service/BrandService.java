@@ -11,7 +11,8 @@ import java.util.Optional;
 public interface BrandService {
 
     Page<Brand> getAllBrand(Pageable pageable);
-
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
     Brand createBrand(Brand brand);
     Brand updateBrand(Long id, Brand brand);
     Brand save(Brand brand);

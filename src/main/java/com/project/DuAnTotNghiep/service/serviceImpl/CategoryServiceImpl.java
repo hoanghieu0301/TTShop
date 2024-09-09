@@ -78,4 +78,12 @@ public class CategoryServiceImpl implements CategoryService {
         Category categoryNew = categoryRepository.save(category);
         return new CategoryDto(category.getId(), category.getCode(), category.getName());
     }
+    @Override
+    public boolean existsByName(String name) {
+        return categoryRepository.existsByName(name);
+    }
+    @Override
+    public boolean existsByNameAndIdNot(String name, Long id) {
+        return categoryRepository.existsByNameAndIdNot(name, id);
+    }
 }

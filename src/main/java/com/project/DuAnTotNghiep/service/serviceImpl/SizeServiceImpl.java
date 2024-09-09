@@ -105,4 +105,14 @@ public class SizeServiceImpl implements SizeService {
         Size sizeNew = sizeRepository.save(size);
         return new SizeDto(sizeNew.getId(), sizeNew.getCode(), sizeNew.getName());
     }
+    @Override
+    public boolean existsByName(String name) {
+        return sizeRepository.existsByName(name);
+    }
+
+    @Override
+    public boolean existsByNameAndIdNot(String name, Long id) {
+        return sizeRepository.existsByNameAndIdNot(name, id);
+    }
+
 }

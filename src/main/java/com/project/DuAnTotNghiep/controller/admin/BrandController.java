@@ -16,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -27,7 +29,7 @@ public class BrandController {
 
     @GetMapping("/brand-all")
     public String getAllBrand(Model model, @RequestParam(name = "page", defaultValue = "0") int page,
-                           @RequestParam(name = "sort", defaultValue = "name,asc") String sortField) {
+                              @RequestParam(name = "sort", defaultValue = "name,asc") String sortField) {
         int pageSize = 8; // Number of items per page
         String[] sortParams = sortField.split(",");
         String sortFieldName = sortParams[0];
@@ -38,34 +40,37 @@ public class BrandController {
         }
 
         Sort sort = Sort.by(sortDirection, sortFieldName);
-
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         Page<Brand> brandPage = brandService.getAllBrand(pageable);
 
         model.addAttribute("sortField", sortFieldName);
         model.addAttribute("sortDirection", sortDirection);
-
         model.addAttribute("items", brandPage);
 
         return "admin/brand";
     }
 
     @GetMapping("/brand-create")
-    public String viewAddBrand(Model model){
+    public String viewAddBrand(Model model) {
         Brand brand = new Brand();
         model.addAttribute("action", "/admin/brand-save");
         model.addAttribute("Brand", brand);
         return "admin/brand-create";
     }
 
-
     @PostMapping("/brand-save")
     public String addBrand(RedirectAttributes redirectAttributes, @Validated @ModelAttribute("Brand") Brand brand) {
         try {
+            // Check if the brand name already exists
+            if (brandService.existsByName(brand.getName())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tên nhãn hàng '" + brand.getName() + "' đã tồn tại");
+                return "redirect:/admin/brand-create";
+            }
+
             brandService.createBrand(brand);
             redirectAttributes.addFlashAttribute("successMessage", "Thêm nhãn hàng mới thành công");
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/brand-create";
         }
@@ -75,14 +80,21 @@ public class BrandController {
     @PostMapping("/brand-update/{id}")
     public String update(@PathVariable("id") Long id,
                          @Validated @ModelAttribute("Brand") Brand brand, RedirectAttributes redirectAttributes) {
+
+        // Check if the brand name already exists, excluding the current brand being updated
+        if (brandService.existsByNameAndIdNot(brand.getName(), id)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên nhãn hàng '" + brand.getName() + "' đã tồn tại");
+            return "redirect:/admin/brand-detail/" + id; // Corrected redirection URL
+        }
+
         if (brandService.existsById(id)) {
             try {
                 brandService.updateBrand(id, brand);
                 redirectAttributes.addFlashAttribute("successMessage", "Nhãn hàng đã được cập nhật thành công");
 
-            }catch (Exception e) {
+            } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-                return "redirect:/admin/brand-edit/" + id;
+                return "redirect:/admin/brand-detail/" + id; // Corrected redirection URL
             }
             return "redirect:/admin/brand-all";
         } else {
@@ -104,9 +116,26 @@ public class BrandController {
     }
 
     @GetMapping("/brand-delete/{id}")
-    public String delete(@PathVariable("id") Long id, ModelMap modelMap){
+    public String delete(@PathVariable("id") Long id, ModelMap modelMap) {
         brandService.delete(id);
         return "redirect:/admin/brand-all";
     }
 
+    // AJAX endpoint to check for duplicate brand name
+    @GetMapping("/check-brand-name")
+    @ResponseBody
+    public Map<String, Boolean> checkBrandName(@RequestParam("name") String name,
+                                               @RequestParam(value = "id", required = false) Long id) {
+        boolean exists;
+        if (id != null) {
+            // Check for duplicates excluding the current brand being updated
+            exists = brandService.existsByNameAndIdNot(name, id);
+        } else {
+            // Check for duplicates during create
+            exists = brandService.existsByName(name);
+        }
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", !exists); // returns true if name is not duplicated
+        return response;
+    }
 }
