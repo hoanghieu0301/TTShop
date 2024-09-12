@@ -118,4 +118,9 @@ public class ColorServiceIpml implements ColorService {
         return colorRepo.existsByNameAndIdNot(name, id);
     }
 
+    @Override
+    public boolean existsByCodeAndName(String code, String name) {
+        return colorRepo.existsByCodeAndIdNot(code, name);
+    }
+
 }

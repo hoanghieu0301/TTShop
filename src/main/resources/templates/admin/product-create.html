@@ -186,22 +186,46 @@
     <div th:if="${duplicateCode!=null}" th:text="${duplicateCode}" class="alert alert-danger ml-2 py-2 px-2"></div>
     <script th:inline="javascript">
         $(document).ready(function () {
+            // Show modals for adding new Brand, Category, Material
             $('#add-brand').on('click', function () {
-                $('#add-brand-modal').show()
-            })
+                $('#add-brand-modal').show();
+            });
 
             $('#add-category').on('click', function () {
-                $('#add-category-modal').show()
-            })
+                $('#add-category-modal').show();
+            });
 
             $('#add-material').on('click', function () {
-                $('#add-material-modal').show()
-            })
-
+                $('#add-material-modal').show();
+            });
 
             $('.close').on('click', function () {
-                $(this).closest('.custom-modal').hide()
-            })
+                $(this).closest('.custom-modal').hide();
+            });
+
+            // AJAX function to check duplicate names
+            async function checkDuplicateName(url, nameFieldId, errorMsgSelector) {
+                let name = $(nameFieldId).val();
+                let isValid = false;
+
+                // Return a promise that resolves to true/false based on the duplicate check
+                return $.get(url, { name: name })
+                    .then(function (response) {
+                        if (!response.isValid) {
+                            $(errorMsgSelector).text('Tên đã tồn tại');
+                            return true;  // Duplicate found
+                        } else {
+                            $(errorMsgSelector).text('');
+                            return false; // No duplicate
+                        }
+                    })
+                    .catch(function () {
+                        // Handle any error from the server
+                        $(errorMsgSelector).text('Error checking name');
+                        return true;  // Stop form submission on error
+                    });
+            }
+
 
             // VALIDATE BRAND
             Validator({
@@ -215,10 +239,14 @@
                     Validator.maxLength('#brandCode', 20)
                 ],
                 onSubmit: async function (data) {
+                    // Check for duplicate brand name
+                    let nameExists = await checkDuplicateName('/admin/check-brand-name', '#brandName', '#brandName + .error');
+                    if (nameExists) return; // Stop submission if duplicate exists
+
                     var dataSend = {
                         code: data.brandCode,
                         name: data.brandName
-                    }
+                    };
                     await $.ajax({
                         type: 'POST',
                         dataType: 'json',
@@ -227,9 +255,9 @@
                         url: '/api/brand',
 
                         success: function (data) {
-                            $("#add-brand-modal").hide()
-                            $('#brand').append(`<option value="${data.id}">${data.name}</option>`)
-                            $('#brand').val(`${data.id}`)
+                            $("#add-brand-modal").hide();
+                            $('#brand').append(`<option value="${data.id}">${data.name}</option>`);
+                            $('#brand').val(`${data.id}`);
                         },
                         error: function (xhr, status, error) {
                             Swal.fire({
@@ -238,12 +266,11 @@
                                 icon: "error"
                             });
                         }
-                    })
+                    });
                 }
             });
-            //END VALIDATE BRAND
 
-            //VALIDATE CATEGORY
+            // VALIDATE CATEGORY
             Validator({
                 form: '#category-form',
                 formGroupSelector: '.form-group',
@@ -255,10 +282,14 @@
                     Validator.maxLength('#categoryCode', 20)
                 ],
                 onSubmit: async function (data) {
+                    // Check for duplicate category name
+                    let nameExists = await checkDuplicateName('/admin/check-category-name', '#categoryName', '#categoryName + .error');
+                    if (nameExists) return; // Stop submission if duplicate exists
+
                     var dataSend = {
                         code: data.categoryCode,
                         name: data.categoryName
-                    }
+                    };
                     await $.ajax({
                         type: 'POST',
                         dataType: 'json',
@@ -267,9 +298,9 @@
                         url: '/api/category',
 
                         success: function (data) {
-                            $("#add-category-modal").hide()
-                            $('#category').append(`<option value="${data.id}">${data.name}</option>`)
-                            $('#category').val(`${data.id}`)
+                            $("#add-category-modal").hide();
+                            $('#category').append(`<option value="${data.id}">${data.name}</option>`);
+                            $('#category').val(`${data.id}`);
                         },
                         error: function (xhr, status, error) {
                             Swal.fire({
@@ -278,11 +309,11 @@
                                 icon: "error"
                             });
                         }
-                    })
+                    });
                 }
             });
 
-            //VALIDATE MATERIAL
+            // VALIDATE MATERIAL
             Validator({
                 form: '#material-form',
                 formGroupSelector: '.form-group',
@@ -294,10 +325,14 @@
                     Validator.maxLength('#materialCode', 20)
                 ],
                 onSubmit: async function (data) {
+                    // Check for duplicate material name
+                    let nameExists = await checkDuplicateName('/admin/check-material-name', '#materialName', '#materialName + .error');
+                    if (nameExists) return; // Stop submission if duplicate exists
+
                     var dataSend = {
                         code: data.materialCode,
                         name: data.materialName
-                    }
+                    };
                     await $.ajax({
                         type: 'POST',
                         dataType: 'json',
@@ -306,9 +341,9 @@
                         url: '/api/material',
 
                         success: function (data) {
-                            $("#add-material-modal").hide()
-                            $('#material').append(`<option value="${data.id}">${data.name}</option>`)
-                            $('#material').val(`${data.id}`)
+                            $("#add-material-modal").hide();
+                            $('#material').append(`<option value="${data.id}">${data.name}</option>`);
+                            $('#material').val(`${data.id}`);
                         },
                         error: function (xhr, status, error) {
                             Swal.fire({
@@ -317,11 +352,11 @@
                                 icon: "error"
                             });
                         }
-                    })
+                    });
                 }
             });
 
-            //VALIDATE MATERIAL
+            // VALIDATE PRODUCT FORM
             Validator({
                 form: '#formProduct1',
                 formGroupSelector: '.form-group',
@@ -331,10 +366,21 @@
                     Validator.maxLength('#name', 100),
                     Validator.maxLength('#code', 20),
                     Validator.maxLength('#describe', 300)
-                ]
+                ],
+                onSubmit: async function (data) {
+                    // Check for duplicate product name asynchronously
+                    let nameExists = await checkDuplicateName('/admin/check-product-name', '#name', '#name + .error');
+
+                    // If a duplicate name exists, stop the form submission
+                    if (nameExists) return;
+
+                    // If no duplicate, allow form to be submitted
+                    document.getElementById('formProduct1').submit();
+                }
             });
         });
     </script>
+
 </div>
 </body>
 </html>

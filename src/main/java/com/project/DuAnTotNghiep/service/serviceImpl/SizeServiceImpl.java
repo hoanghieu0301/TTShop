@@ -115,4 +115,9 @@ public class SizeServiceImpl implements SizeService {
         return sizeRepository.existsByNameAndIdNot(name, id);
     }
 
+    @Override
+    public boolean existsByCodeAndName(String code, String name) {
+        return sizeRepository.existsByCodeAndIdNot(code, name);
+    }
+
 }

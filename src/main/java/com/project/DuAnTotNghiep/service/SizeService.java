@@ -31,4 +31,6 @@ public interface SizeService {
     SizeDto createSizeApi(SizeDto sizeDto);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
+
+    boolean existsByCodeAndName(String code, String name);
 }

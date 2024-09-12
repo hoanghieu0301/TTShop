@@ -144,36 +144,40 @@
     <script th:inline="javascript">
         $(document).ready(function () {
             var type = /*[[${DiscountCode.type}]]*/ '';
-            $("#discount-by-money").hide()
-            $("#discountAmount").prop('disabled', true)
-            if(type == 2) {
-                $("#discount-by-percent").hide()
-                $("#max-amount-by-percent").hide()
-                $("#discount-by-money").show()
-                $("#discountAmount").prop('disabled', false)
-                $('#percentage').prop('disabled', true)
-                $('#maximumAmount').prop('disabled', true)
+
+            // Initial setup based on the discount type
+            $("#discount-by-money").hide();
+            $("#discountAmount").prop('disabled', true);
+
+            if (type == 2) {
+                $("#discount-by-percent").hide();
+                $("#max-amount-by-percent").hide();
+                $("#discount-by-money").show();
+                $("#discountAmount").prop('disabled', false);
+                $('#percentage').prop('disabled', true);
+                $('#maximumAmount').prop('disabled', true);
             }
 
+            // Event listeners for toggling between discount types
             $("#type1").on("click", function () {
-                $("#discount-by-money").hide()
-                $("#discount-by-percent").show()
-                $("#max-amount-by-percent").show()
-                $("#discountAmount").prop('disabled', true)
-                $('#percentage').prop('disabled', false)
-                $('#maximumAmount').prop('disabled', false)
-            })
+                $("#discount-by-money").hide();
+                $("#discount-by-percent").show();
+                $("#max-amount-by-percent").show();
+                $("#discountAmount").prop('disabled', true);
+                $('#percentage').prop('disabled', false);
+                $('#maximumAmount').prop('disabled', false);
+            });
 
             $("#type2").on("click", function () {
-                $("#discount-by-money").show()
-                $("#discount-by-percent").hide()
-                $("#max-amount-by-percent").hide()
-                $("#discountAmount").prop('disabled', false)
-                $('#percentage').prop('disabled', true)
-                $('#maximumAmount').prop('disabled', true)
+                $("#discount-by-money").show();
+                $("#discount-by-percent").hide();
+                $("#max-amount-by-percent").hide();
+                $("#discountAmount").prop('disabled', false);
+                $('#percentage').prop('disabled', true);
+                $('#maximumAmount').prop('disabled', true);
+            });
 
-            })
-
+            // Validator setup
             Validator({
                 form: '#discount-code-form',
                 formGroupSelector: '.form-group',
@@ -188,70 +192,55 @@
                     Validator.isRequired('#percentage', 'Vui lòng nhập phần trăm giảm'),
                     Validator.isRequired('#maximumAmount', 'Vui lòng nhập số tiền giảm tối đa mỗi đơn'),
                     Validator.maxLength('#code', 50),
-                    Validator.isValidStartDateEndDate('#startDate', () =>  {
+                    Validator.isValidStartDateEndDate('#startDate', () => {
                         return document.querySelector('#discount-code-form #endDate').value;
                     }, 'Ngày áp dụng phải nhỏ hơn ngày kết thúc')
                 ]
             });
 
-            // $('#discount-code-form').on('submit', function () {
-            //     if($('#startDate').val() >= $('#endDate').val()) {
-            //         Swal.fire({
-            //             text:'Ngày áp dụng phải nhỏ hơn ngày kết thúc',
-            //             icon: 'error'
-            //         })
-            //         return false;
-            //     }
-            //     return true
-            // })
-
-
-           $("#percentage").on('input', function () {
-            if(parseInt($(this).val()) > 99) {  // Updated to reflect 99 instead of 98
-                $(this).val(99);
-                Toastify({
-                    text: "Giảm giá tối đa 99%",
-                    className: "error",
-                    style: {
-                        color: "white",
-                        background: "red",
-                    }
-                }).showToast();
-            } else if (parseInt($(this).val()) < 1) {  // Updated to reflect 1 instead of 2
-                $(this).val(1);
-                Toastify({
-                    text: "Giảm giá tối thiểu 1%",
-                    className: "error",
-                    style: {
-                        color: "white",
-                        background: "red",
-                    }
-                }).showToast();
-            }
-        })
-
-
-
-            $("#discountAmount").on('keypress', function (e) {
-                onlyAllowNumberInput(e)
+            // Restrict percentage input between 1 and 99
+            $("#percentage").on('input', function () {
+                if (parseInt($(this).val()) > 99) {
+                    $(this).val(99);
+                    Toastify({
+                        text: "Giảm giá tối đa 99%",
+                        className: "error",
+                        style: {
+                            color: "white",
+                            background: "red",
+                        }
+                    }).showToast();
+                } else if (parseInt($(this).val()) < 1) {
+                    $(this).val(1);
+                    Toastify({
+                        text: "Giảm giá tối thiểu 1%",
+                        className: "error",
+                        style: {
+                            color: "white",
+                            background: "red",
+                        }
+                    }).showToast();
+                }
             });
 
-            $("#percentage").on('keypress', function (e) {
-                onlyAllowNumberInput(e)
+            // Restrict the following fields to numeric input only
+            const numericFields = [
+                '#discountAmount',
+                '#percentage',
+                '#maximumAmount',
+                '#minimumAmountInCart',
+                '#maximumUsage'
+            ];
+
+            // Attach input validation to all numeric fields
+            numericFields.forEach(function (selector) {
+                $(selector).on('input', function () {
+                    // Remove any non-numeric characters
+                    $(this).val($(this).val().replace(/\D/g, ''));
+                });
             });
 
-            $('#maximumAmount').on('keypress', function (e) {
-                onlyAllowNumberInput(e)
-            })
-
-            $("#minimumAmountInCart").on('keypress', function (e) {
-                onlyAllowNumberInput(e)
-            });
-
-            $("#maximumUsage").on('keypress', function (e) {
-                onlyAllowNumberInput(e)
-            });
-
+            // Only allow numbers for keypress event to prevent invalid characters from being entered
             function onlyAllowNumberInput(e) {
                 const key = e.key;
                 if (!/[\d\b]/.test(key)) {
@@ -259,13 +248,15 @@
                 }
             }
 
-            function removeAnyNonDigit(value) {
-                return value.replace(/\D/g, '');
-            }
-
-
-        })
+            // Attach keypress validation to numeric fields
+            numericFields.forEach(function (selector) {
+                $(selector).on('keypress', function (e) {
+                    onlyAllowNumberInput(e);
+                });
+            });
+        });
     </script>
+
 </div>
 </body>
 </html>

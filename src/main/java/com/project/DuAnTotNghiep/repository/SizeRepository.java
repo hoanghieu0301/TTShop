@@ -27,4 +27,5 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
     Size findByCodeAndDeleteFlagTrue(String code);
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByCodeAndIdNot(String code, String name);
 }

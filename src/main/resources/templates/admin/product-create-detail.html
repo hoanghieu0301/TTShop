@@ -144,8 +144,58 @@
                 $('#add-size-modal').show()
                 parentPlus = $(this).closest('.select-container').find('.size-select')
             })
+            // Function to check if color code + name combination exists
+            async function checkDuplicateColor(dataSend) {
+                let exists = false;
+                await $.ajax({
+                    type: 'GET',
+                    url: '/admin/check-color',
+                    data: dataSend,
+                    success: function (response) {
+                        if (!response.isValid) {
+                            $('#colorCode').siblings('.error').text('Mã màu hoặc tên màu đã tồn tại');
+                            exists = true;  // Combination found
+                        } else {
+                            $('#colorCode').siblings('.error').text('');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: "Có lỗi xảy ra khi kiểm tra màu",
+                            icon: "error"
+                        });
+                    }
+                });
+                return exists;
+            }
 
-            //VALIDATE CATEGORY
+            // Function to check if size code + name combination exists
+            async function checkDuplicateSize(dataSend) {
+                let exists = false;
+                await $.ajax({
+                    type: 'GET',
+                    url: '/admin/check-size',
+                    data: dataSend,
+                    success: function (response) {
+                        if (!response.isValid) {
+                            $('#sizeCode').siblings('.error').text('Mã kích cỡ hoặc tên kích cỡ đã tồn tại');
+                            exists = true;  // Combination found
+                        } else {
+                            $('#sizeCode').siblings('.error').text('');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: "Có lỗi xảy ra khi kiểm tra kích cỡ",
+                            icon: "error"
+                        });
+                    }
+                });
+                return exists;
+            }
+            // VALIDATE COLOR FORM
             Validator({
                 form: '#color-form',
                 formGroupSelector: '.form-group',
@@ -153,25 +203,30 @@
                 rules: [
                     Validator.isRequired('#colorCode', 'Vui lòng nhập mã màu'),
                     Validator.isRequired('#colorName', 'Vui lòng nhập tên màu'),
-                    Validator.maxLength('#colorName', 30),
-                    Validator.maxLength('#colorCode', 20)
+                    Validator.maxLength('#colorCode', 20),
+                    Validator.maxLength('#colorName', 30)
                 ],
                 onSubmit: async function (data) {
                     var dataSend = {
                         code: data.colorCode,
                         name: data.colorName
-                    }
+                    };
+
+                    // Check for duplicate color (code + name)
+                    let exists = await checkDuplicateColor(dataSend);
+                    if (exists) return; // Stop submission if duplicate exists
+
+                    // Proceed with adding color
                     await $.ajax({
                         type: 'POST',
                         dataType: 'json',
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify(dataSend),
                         url: '/api/color',
-
                         success: function (data) {
-                            $("#add-color-modal").hide()
-                            $('.color-select').append(`<option value="${data.id}">${data.name}</option>`)
-                            parentPlus.val(`${data.id}`).trigger('change')
+                            $("#add-color-modal").hide();
+                            $('.color-select').append(`<option value="${data.id}">${data.name}</option>`);
+                            parentPlus.val(`${data.id}`).trigger('change');
                         },
                         error: function (xhr, status, error) {
                             Swal.fire({
@@ -180,10 +235,10 @@
                                 icon: "error"
                             });
                         }
-                    })
+                    });
                 }
             });
-            //VALIDATE CATEGORY
+            // VALIDATE SIZE FORM
             Validator({
                 form: '#size-form',
                 formGroupSelector: '.form-group',
@@ -191,25 +246,30 @@
                 rules: [
                     Validator.isRequired('#sizeCode', 'Vui lòng nhập mã kích cỡ'),
                     Validator.isRequired('#sizeName', 'Vui lòng nhập tên kích cỡ'),
-                    Validator.maxLength('#sizeName', 30),
-                    Validator.maxLength('#sizeCode', 20)
+                    Validator.maxLength('#sizeCode', 20),
+                    Validator.maxLength('#sizeName', 30)
                 ],
                 onSubmit: async function (data) {
                     var dataSend = {
                         code: data.sizeCode,
                         name: data.sizeName
-                    }
+                    };
+
+                    // Check for duplicate size (code + name)
+                    let exists = await checkDuplicateSize(dataSend);
+                    if (exists) return; // Stop submission if duplicate exists
+
+                    // Proceed with adding size
                     await $.ajax({
                         type: 'POST',
                         dataType: 'json',
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify(dataSend),
                         url: '/api/size',
-
                         success: function (data) {
-                            $("#add-size-modal").hide()
-                            $('.size-select').append(`<option value="${data.id}">${data.name}</option>`)
-                            parentPlus.val(`${data.id}`).trigger('change')
+                            $("#add-size-modal").hide();
+                            $('.size-select').append(`<option value="${data.id}">${data.name}</option>`);
+                            parentPlus.val(`${data.id}`).trigger('change');
                         },
                         error: function (xhr, status, error) {
                             Swal.fire({
@@ -218,7 +278,7 @@
                                 icon: "error"
                             });
                         }
-                    })
+                    });
                 }
             });
 
@@ -227,12 +287,58 @@
             })
 
 
+            // Function to allow only numeric input for price
             function onlyAllowNumberInput(e) {
-                const key = e.key;
-                if (key === '-') {
-                    e.preventDefault();
+                const keyCode = e.keyCode || e.which;
+
+                // Allow backspace (8), tab (9), delete (46), and digits (48-57 and 96-105)
+                if (keyCode === 8 || keyCode === 9 || keyCode === 46 || (keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105)) {
+                    return;
+                }
+
+                // Prevent any other character input
+                e.preventDefault();
+            }
+            // Function to validate price input after the user finishes typing
+            function validatePriceInput(e) {
+                let value = $(this).val();
+
+                // Replace any non-numeric characters
+                value = value.replace(/[^0-9]/g, '');
+
+                // Set the cleaned value back to the input field
+                $(this).val(value);
+
+                // Convert value to a number for comparison
+                const numericValue = parseFloat(value);
+
+                // If the price is NaN (Not a Number) or less than or equal to 0, show an error
+                if (isNaN(numericValue) || numericValue <= 0) {
+                    // Reset the value to a minimum of 1 if invalid
+                    $(this).val(1);
+                    Swal.fire("Lỗi", "Giá tiền phải lớn hơn 0", "error");
                 }
             }
+
+            // Ensure quantity is greater than or equal to 0
+            function validateQuantityInput(e) {
+                let value = parseInt($(this).val());
+
+                // If quantity is less than 0, set it to 0 and show an error
+                if (isNaN(value) || value < 0) {
+                    $(this).val(0);
+                    Swal.fire("Lỗi", "Số lượng phải lớn hơn hoặc bằng 0", "error");
+                }
+            }
+            // Attach listeners for price and quantity inputs
+            $('.product-price').on('keydown', onlyAllowNumberInput);
+            $('.product-price').on('input change', validatePriceInput);
+
+            $('.product-quantity').on('keydown', onlyAllowNumberInput);
+            $('.product-quantity').on('input change', validateQuantityInput);
+
+            // Handle add product detail
+            $('#add-attr-btn').on('click', addItem);
 
             function onlyAllowNumberInput2(e) {
                 const key = e.key;
@@ -290,8 +396,6 @@
                 return Math.floor(100000000000 + Math.random() * 900000000000).toString();
             }
             $('.barcode-select').val(generateRandomBarcode());
-
-            $('#add-attr-btn').on('click', addItem)
             function addItem() {
                 var detailId = detail.id + 1;
                 var template = document.querySelector('.form-table').cloneNode(true);
@@ -301,16 +405,25 @@
                 var newIndex = document.querySelectorAll('.form-table').length;
 
                 // Update the names of input fields to ensure uniqueness
-                template.querySelectorAll('input, select').forEach(function(input) {
+                template.querySelectorAll('input, select').forEach(function (input) {
                     var name = input.getAttribute('name');
                     if (name) {
                         input.setAttribute('name', name.replace('productDetailList[0]', 'productDetailList[' + newIndex +']'));
-                        input.value = ''; // Clear input values if needed
+                        input.value = ''; // Clear input values
                     }
                 });
                 template.querySelector('.product-price').value = 10000
                 template.querySelector('.product-quantity').value = 1
+                // Set default values for the newly added fields
+                template.querySelector('.product-price').value = 10000;
+                template.querySelector('.product-quantity').value = 1;
 
+                // Attach validation to newly added price and quantity fields
+                $(template).find('.product-price').on('keydown', onlyAllowNumberInput);
+                $(template).find('.product-price').on('input change', validatePriceInput);
+
+                $(template).find('.product-quantity').on('keydown', onlyAllowNumberInput);
+                $(template).find('.product-quantity').on('input change', validateQuantityInput);
                 $('.product-quantity').on('keydown', function (e) {
                     onlyAllowNumberInput(e)
                 })

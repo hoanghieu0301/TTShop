@@ -382,7 +382,10 @@
         })
 
         $('#percentage-all').on('input', function () {
-            if($(this).val() > 98) {
+            var value = removeAnyNonDigit($(this).val());  // Remove any non-numeric characters
+            $(this).val(value);  // Set cleaned value back to input
+
+            if (parseInt(value) > 98) {
                 $(this).val(98);
                 Toastify({
                     text: "Không thể nhập quá 98%",
@@ -391,8 +394,7 @@
                         background: "red",
                     }
                 }).showToast();
-                return
-            } else if($(this).val() < 1) {
+            } else if (parseInt(value) < 1) {
                 $(this).val(1);
                 Toastify({
                     text: "Không thể nhập bé hơn 1%",
@@ -401,9 +403,8 @@
                         background: "red",
                     }
                 }).showToast();
-                return
             }
-        })
+        });
 
 
         // Handle search product
@@ -664,8 +665,12 @@
         }
 
         function handleInputPrice() {
+            // Validate percentage input
             $(".percentage").on('input change', function () {
-                if(parseFloat($(this).val()) > 98) {
+                var value = removeAnyNonDigit($(this).val());
+                $(this).val(value);
+
+                if (parseFloat(value) > 98) {
                     $(this).val(98);
                     Toastify({
                         text: "Không thể nhập quá 98%",
@@ -674,8 +679,7 @@
                             background: "red",
                         }
                     }).showToast();
-                    return
-                } else if(parseFloat($(this).val()) < 1) {
+                } else if (parseFloat(value) < 1) {
                     $(this).val(1);
                     Toastify({
                         text: "Không thể nhập bé hơn 1%",
@@ -684,17 +688,20 @@
                             background: "red",
                         }
                     }).showToast();
-                    return
                 }
-                var initprice = removeAnyNonDigit($(this).closest('.product-select-item').find('.product-select-price').text())
-                var percentValue = $(this).val()
-                $(this).parent().find('.amount').val(Math.round(parseFloat(initprice) - parseFloat(initprice) * percentValue/100))
-            })
+                var initprice = removeAnyNonDigit($(this).closest('.product-select-item').find('.product-select-price').text());
+                var percentValue = $(this).val();
+                $(this).parent().find('.amount').val(Math.round(parseFloat(initprice) - parseFloat(initprice) * percentValue / 100));
+            });
 
+            // Validate amount input
             $(".amount").on('input change', function () {
-                var initprice = removeAnyNonDigit($(this).closest('.product-select-item').find('.product-select-price').text())
-                if(parseFloat($(this).val()) > initprice) {
-                    $(this).val(initprice)
+                var initprice = removeAnyNonDigit($(this).closest('.product-select-item').find('.product-select-price').text());
+                var value = removeAnyNonDigit($(this).val());
+                $(this).val(value);
+
+                if (parseFloat(value) > parseFloat(initprice)) {
+                    $(this).val(initprice);
                     Toastify({
                         text: "Không thể nhập quá giá gốc",
                         className: "error",
@@ -703,34 +710,31 @@
                         }
                     }).showToast();
                 }
-                if($(this).val()) {
-                    const percent = ((parseFloat(initprice) - parseFloat($(this).val()))/ parseFloat(initprice)) * 100
-                    $(this).parent().find('.percentage').val(percent.toFixed(2))
-                }
-                else {
-                    $(this).parent().find('.percentage').val('')
-                }
-            })
 
-            $(".percentage").on('keypress', function (e) {
-                // Lấy mã ASCII của ký tự được nhấn
-                const charCode = (e.which) ? e.which : e.keyCode;
-
-                // Chuyển đổi mã ASCII thành ký tự
-                const charTyped = String.fromCharCode(charCode);
-                const inputValue = $(this).val()
-                // Kiểm tra xem ký tự có phải là số float hay không
-                if (!/^\d*\.?\d*$/.test(charTyped) || (charTyped === '.' && inputValue.includes('.'))) {
-                    // Nếu không phải số float, ngăn chặn sự kiện keypress
-                    e.preventDefault();
+                if ($(this).val()) {
+                    const percent = ((parseFloat(initprice) - parseFloat($(this).val())) / parseFloat(initprice)) * 100;
+                    $(this).parent().find('.percentage').val(percent.toFixed(2));
+                } else {
+                    $(this).parent().find('.percentage').val('');
                 }
             });
 
+            // Restrict to numbers and one decimal for percentage input
+            $(".percentage").on('keypress', function (e) {
+                const charCode = (e.which) ? e.which : e.keyCode;
+                const charTyped = String.fromCharCode(charCode);
+                const inputValue = $(this).val();
+                if (!/^\d*\.?\d*$/.test(charTyped) || (charTyped === '.' && inputValue.includes('.'))) {
+                    e.preventDefault();  // Prevent invalid float number characters
+                }
+            });
+
+            // Restrict amount to numeric input only
             $(".amount").on('keypress', function (e) {
-                onlyAllowNumberInput(e)
+                onlyAllowNumberInput(e);
             });
         }
-
+        handleInputPrice();
         function handleDateChange() {
             $('.startDate').on('change', function () {
                 var parent = $(this).closest('.product-select-item');

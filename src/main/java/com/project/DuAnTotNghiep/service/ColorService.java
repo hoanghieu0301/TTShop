@@ -37,4 +37,5 @@ public interface ColorService {
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
 
+    boolean existsByCodeAndName(String code, String name);
 }

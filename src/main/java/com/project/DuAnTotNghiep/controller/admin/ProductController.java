@@ -113,23 +113,22 @@ public class ProductController {
 
     @PostMapping("/product-create/save-part1")
     public String handlePart1(@ModelAttribute("product") Product product, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        // Check if the product code already exists
-        if (productService.existsByCode(product.getCode())) {
-            redirectAttributes.addFlashAttribute("duplicateCode", "Mã sản phẩm đã tồn tại");
-            return "redirect:/admin/product-create";
-        }
-
         // Check if the product name already exists
         if (productService.existsByName(product.getName())) {
             redirectAttributes.addFlashAttribute("duplicateName", "Tên sản phẩm đã tồn tại");
             return "redirect:/admin/product-create";
         }
 
-        // Other necessary checks...
+        // Check if the product code already exists
+        if (productService.existsByCode(product.getCode())) {
+            redirectAttributes.addFlashAttribute("duplicateCode", "Mã sản phẩm đã tồn tại");
+            return "redirect:/admin/product-create";
+        }
 
         String randomString = UUID.randomUUID().toString();
         session.setAttribute("randomCreateKey", randomString);
         session.setAttribute("createProductPart1" + randomString, product);
+
         return "redirect:/admin/product-create/part2";
     }
 
@@ -197,24 +196,17 @@ public class ProductController {
     }
 
     @PostMapping("/product-edit/save-part1")
-    public String handleSaveEditPart1(@ModelAttribute("product") Product product, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-        // Generate random key for session management
-        String randomString = UUID.randomUUID().toString();
-        session.setAttribute("randomUpdateKey", randomString);
-
+    public String handleSaveEditPart1(@ModelAttribute("product") Product product, HttpSession session, RedirectAttributes redirectAttributes) {
         // Check if the updated product name already exists (excluding the current product being edited)
         if (productService.existsByNameAndIdNot(product.getName(), product.getId())) {
             redirectAttributes.addFlashAttribute("duplicateName", "Tên sản phẩm '" + product.getName() + "' đã tồn tại");
             return "redirect:/admin/product-edit/" + product.getCode();
         }
 
-        // Check if the updated product code already exists (excluding the current product being edited)
-        if (productService.existsByCodeAndIdNot(product.getCode(), product.getId())) {
-            redirectAttributes.addFlashAttribute("duplicateCode", "Mã sản phẩm '" + product.getCode() + "' đã tồn tại");
-            return "redirect:/admin/product-edit/" + product.getCode();
-        }
-
+        String randomString = UUID.randomUUID().toString();
+        session.setAttribute("randomUpdateKey", randomString);
         session.setAttribute("editProductPart1" + randomString, product);
+
         return "redirect:/admin/product-edit/part2";
     }
 
@@ -326,26 +318,7 @@ public class ProductController {
 
         return "redirect:/admin/product-all";
     }
-    // Endpoint for AJAX validation of product name (for update)
-    @GetMapping("/check-product-name-update")
-    @ResponseBody
-    public Map<String, Boolean> checkProductNameForUpdate(@RequestParam("name") String name, @RequestParam("id") Long id) {
-        boolean exists = productService.existsByNameAndIdNot(name, id);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("isValid", !exists);
-        return response;
-    }
-
-    // Endpoint for AJAX validation of product code (for update)
-    @GetMapping("/check-product-code-update")
-    @ResponseBody
-    public Map<String, Boolean> checkProductCodeForUpdate(@RequestParam("code") String code, @RequestParam("id") Long id) {
-        boolean exists = productService.existsByCodeAndIdNot(code, id);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("isValid", !exists);
-        return response;
-    }
-    // Endpoint for AJAX validation of product name
+    // AJAX endpoint to check for duplicate product name during creation
     @GetMapping("/check-product-name")
     @ResponseBody
     public Map<String, Boolean> checkProductName(@RequestParam("name") String name) {
@@ -355,11 +328,28 @@ public class ProductController {
         return response;
     }
 
-    // Endpoint for AJAX validation of product code
-    @GetMapping("/check-product-code")
+    // AJAX endpoint to check for duplicate product name during update
+    @GetMapping("/check-product-name-update")
     @ResponseBody
-    public Map<String, Boolean> checkProductCode(@RequestParam("code") String code) {
-        boolean exists = productService.existsByCode(code);
+    public Map<String, Boolean> checkProductNameForUpdate(@RequestParam("name") String name, @RequestParam("id") Long id) {
+        boolean exists = productService.existsByNameAndIdNot(name, id);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", !exists);
+        return response;
+    }
+    @GetMapping("/check-color")
+    @ResponseBody
+    public Map<String, Boolean> checkColor(@RequestParam("code") String code, @RequestParam("name") String name) {
+        boolean exists = colorService.existsByCodeAndName(code, name);  // Check for code and name combination
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("isValid", !exists);
+        return response;
+    }
+
+    @GetMapping("/check-size")
+    @ResponseBody
+    public Map<String, Boolean> checkSize(@RequestParam("code") String code, @RequestParam("name") String name) {
+        boolean exists = sizeService.existsByCodeAndName(code, name);  // Check for code and name combination
         Map<String, Boolean> response = new HashMap<>();
         response.put("isValid", !exists);
         return response;

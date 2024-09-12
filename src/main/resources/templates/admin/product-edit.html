@@ -104,13 +104,13 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label>Mã sản phẩm</label>
-                    <input type="text" class="form-control" th:field="*{code}" placeholder="---Mã tự động nếu để trống---" disabled>
+                    <input type="text" class="form-control" th:field="*{code}" placeholder="---Mã tự động nếu để trống---" readonly>
                     <span class="error"></span>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Tên sản phẩm</label>
                     <span class="red_require"> *</span>
-                    <input type="text" class="form-control" th:field="*{name}" >
+                    <input type="text" class="form-control" th:field="*{name}" id="productName">
                     <span class="error"></span>
                 </div>
             </div>
@@ -169,9 +169,8 @@
                     <span class="error"></span>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary m-1"><i class="fa ti-save" id="next-btn"></i> Tiếp theo</button>
-            <a href="/admin/product-all" class="btn btn-dark m-1"><i class="fa fa-mail-reply (alias)"></i>
-                <span>Hủy bỏ</span></a>
+            <button type="submit" class="btn btn-primary m-1" id="next-btn"><i class="fa ti-save"></i> Tiếp theo</button>
+            <a href="/admin/product-all" class="btn btn-dark m-1"><i class="fa fa-mail-reply (alias)"></i> <span>Hủy bỏ</span></a>
         </div>
 
     </form>
@@ -179,16 +178,44 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js" th:inline="javascript"></script>
     <script th:inline="javascript">
         $(document).ready(function () {
-            //VALIDATE MATERIAL
+            // Add click event listener for "Next" button
+            $('#next-btn').click(function () {
+                var productName = $('#productName').val();
+                var productId = $('[name="id"]').val();
+
+                // AJAX call to check for duplicate product name
+                $.ajax({
+                    url: '/admin/check-product-name-update',
+                    method: 'GET',
+                    data: { name: productName, id: productId },
+                    success: function (response) {
+                        if (!response.isValid) {
+                            // If the name is a duplicate, show the error message
+                            $('#error-message').text('Tên sản phẩm đã tồn tại').show();
+                        } else {
+                            // Hide the error message
+                            $('#error-message').hide();
+                            // Submit the form if the name is unique
+                            $('#formProduct1').submit();
+                        }
+                    },
+                    error: function () {
+                        // Handle error
+                        $('#error-message').text('Có lỗi xảy ra, vui lòng thử lại.').show();
+                    }
+                });
+            });
+
+            // Validation setup
             Validator({
                 form: '#formProduct1',
                 formGroupSelector: '.form-group',
                 errorSelector: '.error',
                 rules: [
-                    Validator.isRequired('#name', 'Vui lòng nhập tên sản phẩm'),
-                    Validator.maxLength('#name', 100),
-                    Validator.maxLength('#code', 20),
-                    Validator.maxLength('#describe', 300)
+                    Validator.isRequired('#productName', 'Vui lòng nhập tên sản phẩm'),
+                    Validator.maxLength('#productName', 100),
+                    Validator.maxLength('[name="code"]', 20),
+                    Validator.maxLength('[name="describe"]', 300)
                 ]
             });
         });

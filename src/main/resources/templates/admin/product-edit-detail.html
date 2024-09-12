@@ -179,67 +179,76 @@
                 }
             });
 
-            template.querySelector('.product-price').value = 0
-            template.querySelector('.product-quantity').value = 0
+            // Set default values for the newly added fields
+            template.querySelector('.product-price').value = 0;
+            template.querySelector('.product-quantity').value = 0;
 
-            const deleteButtonContainer = document.createElement('div')
+            const deleteButtonContainer = document.createElement('div');
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
             deleteButton.classList.add('btn', 'btn-danger', 'mt-3');
             deleteButton.innerHTML = '<i class="fa fa-trash" aria-hidden="true"></i>';
-            deleteButtonContainer.appendChild(deleteButton)
+            deleteButtonContainer.appendChild(deleteButton);
 
-            template.querySelector('.form-row').appendChild(deleteButtonContainer)
-
+            template.querySelector('.form-row').appendChild(deleteButtonContainer);
             document.querySelector('.m-3').appendChild(template);
-            var color = ''
-            var size = ''
+
+            var color = '';
+            var size = '';
+
+            // Color change event listener for dynamically added rows
             template.querySelector(".color-select").addEventListener('change', function (e) {
-                color = e.target.value
-                if(!checkDuplicateSizeAndColor(color, size, template) && color != '' && template.querySelector(".size-select").value != '') {
+                color = e.target.value;
+                if(!checkDuplicateSizeAndColor(color, size, template) && color !== '' && template.querySelector(".size-select").value !== '') {
                     listDetail.push({
                         color: color,
                         size: size
-                    })
+                    });
                 }
-            })
+            });
 
+            // Size change event listener for dynamically added rows
             template.querySelector(".size-select").addEventListener('change', function (e) {
-                size = e.target.value
-                if(!checkDuplicateSizeAndColor(color, size, template) && size != '' && template.querySelector(".color-select").value != '') {
+                size = e.target.value;
+                if(!checkDuplicateSizeAndColor(color, size, template) && size !== '' && template.querySelector(".color-select").value !== '') {
                     listDetail.push({
                         color: color,
                         size: size
-                    })
+                    });
                 }
+            });
 
-            })
-
+            // Delete button event listener for removing dynamically added rows
             deleteButton.onclick = function (e) {
-                document.querySelector('.m-3').removeChild(template)
-                removeDetailObj(color, size)
-            }
+                document.querySelector('.m-3').removeChild(template);
+                removeDetailObj(color, size);
+            };
 
-            //Call generateRandomBarcode
-            template.querySelector('.barcode-select').value = generateRandomBarcode()
+            // Reattach validation listeners to the new fields
+            attachValidationListeners();
 
+            // Call generateRandomBarcode
+            template.querySelector('.barcode-select').value = generateRandomBarcode();
         }
 
+        // Generate a random barcode
         function generateRandomBarcode() {
             return Math.floor(100000000000 + Math.random() * 900000000000).toString();
         }
 
+        // Remove detail object from the list
         function removeDetailObj(color, size) {
-
             listDetail = listDetail.filter(function (obj) {
                 return obj.color !== color || obj.size !== size;
             });
         }
 
+        // Duplicate size and color check function
         function checkDuplicateSizeAndColor(color, size, template) {
+            let isDuplicate = false;
             listDetail.forEach(item => {
-                if(item.color == color && item.size == size) {
-                    document.querySelector('.m-3').removeChild(template)
+                if(item.color === color && item.size === size) {
+                    document.querySelector('.m-3').removeChild(template);
                     Toastify({
                         text: "Màu sắc và cỡ đã tồn tại",
                         style: {
@@ -247,12 +256,14 @@
                             background: "red",
                         }
                     }).showToast();
-                    return true
+                    isDuplicate = true;
+                    return;
                 }
-            })
-            return false
+            });
+            return isDuplicate;
         }
-
+        // Attach the 'addItem' function to the event that adds new attributes
+        $('#add-attr-btn').on('click', addItem);
 
         //Handle file input
         const fileInput = document.getElementById("file-input")
@@ -379,7 +390,78 @@
             // window.location = "/admin/product-all";
 
         })
+        // Reusable function to attach validation logic to price and quantity fields
+        function attachValidationListeners() {
+            // Attach listeners to the price and quantity input fields
+            $('.product-price').off('keydown').on('keydown', onlyAllowNumberInputForPrice);
+            $('.product-price').off('blur change').on('blur change', validatePriceInput);
 
+            $('.product-quantity').off('keydown').on('keydown', onlyAllowNumberInputForQuantity);
+            $('.product-quantity').off('blur change').on('blur change', validateQuantityInput);
+        }
+        // Function to allow only numeric input (positive numbers) for price
+        function onlyAllowNumberInputForPrice(e) {
+            const keyCode = e.keyCode || e.which;
+
+            // Allow backspace (key code 8), tab (9), delete (46), and digits (48-57) and numpad digits (96-105)
+            if (keyCode === 8 || keyCode === 9 || keyCode === 46 || (keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105)) {
+                return;
+            }
+
+            // Prevent any other character input
+            e.preventDefault();
+        }
+        // Function to validate price input after the user finishes typing
+        function validatePriceInput() {
+            let value = $(this).val();
+
+            // Replace any non-numeric characters (if any slipped through)
+            value = value.replace(/[^0-9]/g, '');
+
+            // Convert value to a number for comparison
+            const numericValue = parseFloat(value);
+
+            // If the price is NaN (Not a Number) or less than or equal to 0, show an error and reset to 1
+            if (isNaN(numericValue) || numericValue <= 0) {
+                $(this).val(1); // Set minimum value to 1
+                Swal.fire("Lỗi", "Giá tiền phải lớn hơn 0", "error");
+            } else {
+                $(this).val(numericValue); // Set valid price
+            }
+        }
+        // Attach validation listeners to the initial fields
+        attachValidationListeners();
+        // Function to allow only numeric input for quantity (integer)
+        function onlyAllowNumberInputForQuantity(e) {
+            const keyCode = e.keyCode || e.which;
+
+            // Allow backspace (key code 8), tab (9), delete (46), and digits (48-57) and numpad digits (96-105)
+            if (keyCode === 8 || keyCode === 9 || keyCode === 46 || (keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105)) {
+                return;
+            }
+
+            // Prevent any other character input
+            e.preventDefault();
+        }
+
+        // Function to validate quantity input after the user finishes typing
+        function validateQuantityInput() {
+            let value = $(this).val();
+
+            // Replace any non-numeric characters (if any slipped through)
+            value = value.replace(/[^0-9]/g, '');
+
+            // Convert value to an integer for comparison
+            const numericValue = parseInt(value);
+
+            // If the quantity is NaN (Not a Number) or less than 0, reset to 0 and show an error
+            if (isNaN(numericValue) || numericValue < 0) {
+                $(this).val(0); // Set minimum quantity to 0
+                Swal.fire("Lỗi", "Số lượng phải lớn hơn hoặc bằng 0", "error");
+            } else {
+                $(this).val(numericValue); // Set valid quantity
+            }
+        }
         function onlyAllowNumberInput(e) {
             const key = e.key;
             if (key === '-') {
