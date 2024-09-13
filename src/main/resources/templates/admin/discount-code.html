@@ -36,10 +36,10 @@
                         <option value="0" th:selected="${dataSearch.status == 0}">Đã đóng</option>
                     </select>
                 </div>
-                <div class="form-group col-md-2">
-                    <label>Số lượng còn</label>
-                    <input type="text" class="form-control" id="maximumUsage" name="maximumUsage" placeholder="1234" th:value="${dataSearch.maximumUsage}">
-                </div>
+<!--                <div class="form-group col-md-2">-->
+<!--                    <label>Số lượng còn</label>-->
+<!--                    <input type="text" class="form-control" id="maximumUsage" name="maximumUsage" placeholder="1234" th:value="${dataSearch.maximumUsage}">-->
+<!--                </div>-->
             </div>
             <button type="button" id="search-btn" class="btn btn-primary m-1"><i class="fa fa-search"></i> Tìm kiếm</button>
             <a th:href="@{/admin-only/discount-code}" class="btn btn-secondary m-1">

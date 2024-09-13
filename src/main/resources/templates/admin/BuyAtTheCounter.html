@@ -1113,18 +1113,48 @@
                             else {
                                 pay.vourcher = value
                             }
+                            // Kiểm tra giá trị voucher không vượt quá tổng tiền
+                            if (pay.vourcher > pay.totalMoney) {
+                                Swal.fire({
+                                    title: "Lỗi",
+                                    text: "Giá trị voucher không được vượt quá tổng tiền",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                                // Loại bỏ voucher đã chọn
+                                $('.selected-voucher.active').html('') // Xóa thông tin voucher hiển thị
+                                $('.selected-voucher.active').attr('selected-id', '') // Xóa ID voucher đã chọn
+                                voucherChoosed = null; // Xóa voucher đã chọn
+                                voucherDiscount.innerText = '0'; // Đặt lại phần giảm giá hiển thị
+                                return;
+                            }
                             voucherDiscount.innerText = formatNumber(pay.vourcher)
-                        }else {
+                        } else {
                             if(voucherChoosed.discountAmount) {
+                                // Kiểm tra giá trị voucher không vượt quá tổng tiền
+                                if (voucherChoosed.discountAmount > pay.totalMoney) {
+                                    Swal.fire({
+                                        title: "Lỗi",
+                                        text: "Giá trị voucher không được vượt quá tổng tiền",
+                                        icon: "error",
+                                        confirmButtonText: "OK"
+                                    });
+                                    // Loại bỏ voucher đã chọn
+                                    $('.selected-voucher.active').html('') // Xóa thông tin voucher hiển thị
+                                    $('.selected-voucher.active').attr('selected-id', '') // Xóa ID voucher đã chọn
+                                    voucherChoosed = null; // Xóa voucher đã chọn
+                                    voucherDiscount.innerText = '0'; // Đặt lại phần giảm giá hiển thị
+                                    return;
+                                }
                                 voucherDiscount.innerText = formatNumber(voucherChoosed.discountAmount)
-
                             }
                         }
-                    }else {
+                    } else {
                         voucherDiscount.innerText = '0'
-                        calculateLastPrice()
                     }
+                    calculateLastPrice();
                 }
+
 
                 function calculateLastPrice() {
 
@@ -1583,7 +1613,7 @@
                     // Xử lý khi pt thanh toán là chuyển khoản
                     if (paymentMethodId == 3) {
                         $(".qr-payment-container").removeClass('hidden');
-                        $(".qr-payment-container").find('img').attr("src", `https://img.vietqr.io/image/TCB-19037422831012-compact2.jpg?amount=${pay.requireMoney}&addInfo=Thanh%20%20toan%20don%20hang&accountName=Nguyen%20Ngoc%20Sang`);
+                        $(".qr-payment-container").find('img').attr("src", `https://img.vietqr.io/image/VCB-1016515422-compact2.png?amount=${pay.requireMoney}&addInfo=Thanh%20%20toan%20don%20hang&accountName=HOANG%20XUAN%20HIEU`);
                         dataSendIfChuyenKhoan = dataSend;
                     } else {
                         // Execute the AJAX request directly for other payment methods
@@ -1602,8 +1632,10 @@
                         contentType: "application/json; charset=utf-8",
                         success: async function (data) {
                             $('#loading-overlay').hide();
-                            $(".product-select-body.active").html('')
-                            resetPayArea()
+                            $(".product-select-body.active").html('');  // Xóa danh sách sản phẩm đã chọn
+                            resetPayArea();  // Reset lại phần tính tiền
+                            resetVoucherAndCustomerInfo(); // Reset voucher và thông tin khách hàng
+
                             Toastify({
                                 text: "Thanh toán thành công",
                                 className: "info",
@@ -1612,21 +1644,16 @@
                                 }
                             }).showToast();
 
-                            //Lấy bill vừa lưu
+                            // Lấy bill vừa lưu
                             var generateUrl = `/admin/generate-pdf/${data.billId}`;
-                            // Fetch the HTML content from the controller
                             await fetch(generateUrl)
                                 .then(response => response.text())
                                 .then(htmlContent => {
-
-                                    // Config máy in
                                     var printWindow = window.open('', '', 'width=800,height=1000');
                                     printWindow.document.open();
-
                                     printWindow.document.write(htmlContent);
                                     printWindow.document.close();
                                     printWindow.print();
-
                                 })
                                 .catch(error => {
                                     $('#loading-overlay').hide();
@@ -1645,9 +1672,24 @@
                                 icon: "error"
                             });
                         }
-                    })
+                    });
                 }
+                // Hàm reset voucher và thông tin khách hàng
+                function resetVoucherAndCustomerInfo() {
+                    // Reset voucher
+                    $('.selected-voucher.active').html('');  // Xóa hiển thị voucher đã chọn
+                    $('.selected-voucher.active').attr('selected-id', '');  // Xóa ID voucher đã chọn
+                    voucherChoosed = null;  // Đặt lại voucher về null
+                    $('#voucher-discount').text('0');  // Đặt lại phần giảm giá về 0
 
+                    // Reset thông tin khách hàng
+                    $('#selected-customer').val('');  // Xóa tên khách hàng
+
+
+                    // Reset lại số tiền cần thanh toán
+                    $('#customerPayInput').val(0);
+                    $('#money-change').text(0);
+                }
                 $("#confirm-pay").click(function () {
                     handleAjaxRequest(dataSendIfChuyenKhoan);
                 });
